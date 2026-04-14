@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Movimenta Store - A Loja do Movimenta +</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .product-detail-wrapper {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 7vw 40px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+
+    .back-link:hover {
+      color: #0f172a;
+    }
+
+    .product-detail-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
+      gap: 24px;
+      background: #ffffff;
+      border-radius: 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      padding: 18px;
+    }
+
+    .product-detail-image {
+      border-radius: 16px;
+      aspect-ratio: 4/3;
+      background: radial-gradient(circle at 20% 0, rgba(0, 191, 179, 0.18), rgba(209, 213, 219, 0.4));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+
+    .product-detail-title {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .product-detail-category {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 14px;
+    }
+
+    .product-detail-description {
+      font-size: 0.95rem;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    .product-detail-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #00bfb3;
+      margin-bottom: 8px;
+    }
+
+    .product-detail-meta {
+      font-size: 0.83rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 768px) {
+      .product-detail-card {
+        grid-template-columns: 1fr;
+      }
+
+      .product-detail-wrapper {
+        margin-top: 24px;
+        padding-inline: 16px;
+      }
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .cta-btn {
+      appearance: none;
+      border: 1px solid rgba(0, 191, 179, 0.55);
+      background: linear-gradient(to right, rgba(0, 191, 179, 0.16), rgba(14, 165, 233, 0.14));
+      color: #0f172a;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .cta-btn:hover {
+      border-color: rgba(0, 191, 179, 0.85);
+    }
+
+    .cta-helper {
+      font-size: 0.85rem;
+      color: #6b7280;
+      align-self: center;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 50;
+    }
+
+    .modal-overlay.is-open {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f9fafb;
+    }
+
+    .modal-title {
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 0.98rem;
+    }
+
+    .modal-close {
+      appearance: none;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .modal-subtitle {
+      margin-bottom: 12px;
+      color: #6b7280;
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      color: #374151;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    .field input:focus {
+      border-color: rgba(0, 191, 179, 0.85);
+      box-shadow: 0 0 0 3px rgba(0, 191, 179, 0.18);
+    }
+
+    .form-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .submit-btn {
+      appearance: none;
+      border: 1px solid rgba(0, 191, 179, 0.65);
+      background: rgba(0, 191, 179, 0.14);
+      color: #0f172a;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-text {
+      width: 100%;
+      font-size: 0.88rem;
+      color: #6b7280;
+      min-height: 18px;
+      text-align: left;
+    }
+
+    /* Resumo do pedido */
+    #orderReview {
+      margin-top: 24px;
+    }
+
+    .order-review-card {
+      margin-top: 8px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .order-review-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .order-review-list {
+      font-size: 0.9rem;
+      color: #111827;
+      margin-bottom: 10px;
+    }
+
+    .order-review-list span.label {
+      font-weight: 700;
+    }
+
+    .order-review-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .confirm-btn {
+      appearance: none;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 191, 179, 0.7);
+      background: rgba(0, 191, 179, 0.16);
+      color: #0f172a;
+      padding: 9px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .confirm-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .order-status-text {
+      font-size: 0.86rem;
+      color: #6b7280;
+      min-height: 18px;
+      align-self: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">
+      <a href="index.html">
+        <img src="Imagens Site/LOGO Movimenta + (V).jpg" alt="Movimenta+" class="logo-img" />
+      </a>
+    </div>
+    <div class="fitcoin-badge">
+      Detalhes em <strong>Fitcoin (FITC)</strong>
+    </div>
+  </header>
+
+  <main class="product-detail-wrapper">
+    <a href="index.html" class="back-link">← Voltar para o catálogo</a>
+
+    <section id="productDetail">
+      <!-- Detalhes do produto vão ser inseridos via JavaScript -->
+    </section>
+
+    <!-- Resumo do pedido (aparece após "Visualizar pedido") -->
+    <section id="orderReview" aria-live="polite">
+      <!-- Conteúdo gerado via JavaScript -->
+    </section>
+  </main>
+
+  <!-- Modal: Trocar Fitcoin -->
+  <div class="modal-overlay" id="tradeOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tradeTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="tradeTitle">Quero trocar meus Fitcoin</div>
+        <button class="modal-close" id="tradeCloseBtn" type="button">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-subtitle" id="tradeSubtitle">
+          Preencha seus dados e enviaremos sua solicitação com o produto selecionado.
+        </p>
+
+        <form id="tradeForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="tradeName">Nome</label>
+              <input id="tradeName" name="name" type="text" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="tradeEmail">E-mail</label>
+              <input id="tradeEmail" name="email" type="email" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <div class="status-text" id="tradeStatus" aria-live="polite"></div>
+            <button class="submit-btn" id="tradeSubmitBtn" type="submit">Visualizar pedido</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Movimenta Store • A Loja do Movimenta + • Preços fictícios em Fitcoin (FITC)</p>
+  </footer>
+
+  <script>
+    // Mesmo array de produtos usado na página principal
+    const products = [
+      {
+        id: 1,
+        name: "Meia Esportiva Compressão Pro",
+        category: "meias",
+        priceFitcoin: 45,
+        description: "Meia de alta compressão, ideal para corrida e treinos intensos.",
+        icon: "🧦",
+        tag: "Corrida"
+      },
+      {
+        id: 2,
+        name: "Meia Cano Baixo Training",
+        category: "meias",
+        priceFitcoin: 28,
+        description: "Confortável, respirável e perfeita para o dia a dia esportivo.",
+        icon: "🧦",
+        tag: "Treino"
+      },
+      {
+        id: 3,
+        name: "Whey Protein Isolado 900g",
+        category: "suplementos",
+        priceFitcoin: 210,
+        description: "Alto teor de proteína, baixo carboidrato, ideal para ganho de massa.",
+        icon: "🧃",
+        tag: "Pós-treino"
+      },
+      {
+        id: 4,
+        name: "Creatina Monohidratada 300g",
+        category: "suplementos",
+        priceFitcoin: 135,
+        description: "Aumenta força, potência e volume muscular.",
+        icon: "⚗️",
+        tag: "Performance"
+      },
+      {
+        id: 5,
+        name: "Camisa Dry-Fit Running",
+        category: "camisas",
+        priceFitcoin: 95,
+        description: "Tecido leve e respirável para corridas longas.",
+        icon: "👕",
+        tag: "Running"
+      },
+      {
+        id: 6,
+        name: "Camisa Regata Treino Intenso",
+        category: "camisas",
+        priceFitcoin: 88,
+        description: "Liberdade total de movimento e secagem rápida.",
+        icon: "👚",
+        tag: "Academia"
+      },
+      {
+        id: 7,
+        name: "Cinto de Musculação Pro",
+        category: "acessorios",
+        priceFitcoin: 120,
+        description: "Estabilidade extra para levantamento de peso e agachamentos.",
+        icon: "🏋️",
+        tag: "Musculação"
+      },
+      {
+        id: 8,
+        name: "Shaker Antivazamento 700ml",
+        category: "acessorios",
+        priceFitcoin: 36,
+        description: "Ideal para misturar suplementos com praticidade.",
+        icon: "🥤",
+        tag: "Suplementos"
+      }
+    ];
+
+    function formatCategory(cat) {
+      switch (cat) {
+        case "meias":
+          return "Meias";
+        case "suplementos":
+          return "Suplementos";
+        case "camisas":
+          return "Camisas";
+        case "acessorios":
+          return "Acessórios";
+        default:
+          return cat;
+      }
+    }
+
+    let currentProduct = null;
+
+    function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const id = Number(params.get("id"));
+
+      const product = products.find((p) => p.id === id);
+      const container = document.getElementById("productDetail");
+
+      if (!product) {
+        container.innerHTML =
+          '<p style="color:#f97373;">Produto não encontrado.</p>';
+        return;
+      }
+
+      currentProduct = product;
+      document.title = product.name + " | Movimenta Store - A Loja do Movimenta +";
+
+      container.innerHTML = `
+        <article class="product-detail-card">
+          <div class="product-detail-image">
+            <span>${product.icon}</span>
+          </div>
+          <div>
+            <h1 class="product-detail-title">${product.name}</h1>
+            <p class="product-detail-category">
+              Categoria: ${formatCategory(product.category)} • Tag: ${product.tag}
+            </p>
+            <p class="product-detail-description">
+              ${product.description}
+            </p>
+            <p class="product-detail-price">
+              ${product.priceFitcoin.toFixed(0)} FITC
+            </p>
+            <p class="product-detail-meta">
+              Este é um exemplo de descrição detalhada do produto em Fitcoin.
+              Aqui você pode incluir informações de uso, benefícios, composição,
+              recomendações de treino, tamanho, materiais etc.
+            </p>
+            <div class="cta-row">
+              <button class="cta-btn" id="openTradeBtn" type="button">Quero trocar meus Fitcoin</button>
+              <span class="cta-helper">Você receberá contato por e-mail.</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    loadProduct();
+
+    // Modal + envio
+    const overlay = document.getElementById("tradeOverlay");
+    const closeBtn = document.getElementById("tradeCloseBtn");
+    const form = document.getElementById("tradeForm");
+    const statusEl = document.getElementById("tradeStatus");
+    const submitBtn = document.getElementById("tradeSubmitBtn");
+    const subtitleEl = document.getElementById("tradeSubtitle");
+    const orderReviewEl = document.getElementById("orderReview");
+    let pendingOrder = null;
+
+    function openModal() {
+      if (!currentProduct) return;
+      subtitleEl.textContent = `Produto selecionado: ${currentProduct.name} (${currentProduct.priceFitcoin.toFixed(0)} FITC)`;
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
+      statusEl.textContent = "";
+      document.getElementById("tradeName").focus();
+    }
+
+    function closeModal() {
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+
+    document.addEventListener("click", (e) => {
+      if (e.target && e.target.id === "openTradeBtn") openModal();
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.classList.contains("is-open")) closeModal();
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentProduct) return;
+
+      const name = String(document.getElementById("tradeName").value || "").trim();
+      const email = String(document.getElementById("tradeEmail").value || "").trim();
+
+      if (!name || !email) {
+        statusEl.textContent = "Preencha nome e e-mail.";
+        return;
+      }
+
+      // Guarda o pedido pendente para confirmação e mostra resumo na página
+      pendingOrder = {
+        name,
+        email,
+        productId: currentProduct.id,
+        productName: currentProduct.name,
+        productPriceFitc: currentProduct.priceFitcoin
+      };
+
+      orderReviewEl.innerHTML = `
+        <div class="order-review-card">
+          <div class="order-review-title">Resumo do pedido</div>
+          <div class="order-review-list">
+            <div><span class="label">Produto:</span> ${pendingOrder.productName} (${pendingOrder.productPriceFitc} FITC)</div>
+            <div><span class="label">Nome:</span> ${pendingOrder.name}</div>
+            <div><span class="label">E-mail:</span> ${pendingOrder.email}</div>
+          </div>
+          <div class="order-review-actions">
+            <button class="confirm-btn" id="confirmSendBtn" type="button">Confirmar e enviar</button>
+            <div class="order-status-text" id="orderStatusText"></div>
+          </div>
+        </div>
+      `;
+
+      statusEl.textContent = "Confira os dados abaixo antes de enviar.";
+      submitBtn.disabled = false;
+      closeModal();
+    });
+
+    // Clique em "Confirmar e enviar" (depois de visualizar pedido)
+    document.addEventListener("click", async (e) => {
+      if (!pendingOrder) return;
+      if (!(e.target && e.target.id === "confirmSendBtn")) return;
+
+      const statusText = document.getElementById("orderStatusText");
+      const confirmBtn = document.getElementById("confirmSendBtn");
+      if (!statusText || !confirmBtn) return;
+
+      statusText.textContent = "Enviando...";
+      confirmBtn.disabled = true;
+
+      try {
+        const fd = new FormData();
+        fd.append("name", pendingOrder.name);
+        fd.append("email", pendingOrder.email);
+        fd.append("productId", String(pendingOrder.productId));
+        fd.append("productName", pendingOrder.productName);
+        fd.append("productPriceFitc", String(pendingOrder.productPriceFitc));
+
+        const res = await fetch("send_email.php", {
+          method: "POST",
+          body: fd
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data || data.ok !== true) {
+          const msg = (data && data.error) ? data.error : "Não foi possível enviar. Tente novamente.";
+          statusText.textContent = msg;
+          confirmBtn.disabled = false;
+          return;
+        }
+
+        statusText.textContent = "Pedido enviado com sucesso!";
+        pendingOrder = null;
+      } catch (err) {
+        statusText.textContent = "Erro de conexão. Verifique sua hospedagem e tente novamente.";
+        confirmBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
+
