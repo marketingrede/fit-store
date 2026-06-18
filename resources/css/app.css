@@ -1,0 +1,21 @@
+@import "./store.css";
+@import "./pages.css";
+@import "nprogress/nprogress.css";
+@import "swiper/css";
+@import "swiper/css/pagination";
+@import "quill/dist/quill.snow.css";
+@import "cropperjs/dist/cropper.css";
+
+/* Tailwind v4 — utilitários para o painel admin */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2dbda8;
+  --color-primary-alt: #256897;
+  --color-brand-grey: #616164;
+  --color-brand-surface: #eae9e9;
+}
+
+[x-cloak] {
+  display: none !important;
+}

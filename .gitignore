@@ -1,0 +1,17 @@
+/vendor/
+/composer.phar
+/node_modules/
+/.env
+/data/*.db
+/data/*.db-journal
+/data/*.db-wal
+/data/*.db-shm
+/public/assets/.vite/
+/public/assets/js/
+/public/assets/css/
+/public/assets/manifest.json
+/public/uploads/*
+!/public/uploads/.gitkeep
+/test-results/
+/playwright-report/
+/tests/reports/

@@ -1,0 +1,73 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}{{ item.id is defined ? 'Editar' : 'Novo' }} anúncio | Admin{% endblock %}
+
+{% set item = announcement ?? {} %}
+
+{% block admin_content %}
+  <header class="admin-page-header">
+    <div>
+      <nav class="admin-breadcrumb" aria-label="Navegação">
+        <a href="/admin/anuncios">Anúncios</a>
+        <span aria-hidden="true">/</span>
+        <span>{{ item.id is defined ? 'Editar' : 'Novo' }}</span>
+      </nav>
+      <h1 class="admin-page-title">{{ item.id is defined ? 'Editar anúncio' : 'Novo anúncio' }}</h1>
+      <p class="admin-page-subtitle">Publique novidades e comunicados na loja.</p>
+    </div>
+  </header>
+
+  {% if error %}
+    <div class="admin-alert admin-alert--error">{{ error }}</div>
+  {% endif %}
+
+  <form
+    method="post"
+    action="{{ item.id is defined ? '/admin/anuncios/' ~ item.id : '/admin/anuncios' }}"
+    enctype="multipart/form-data"
+    class="admin-card"
+    id="announcementForm"
+  >
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="content_html" id="contentHtmlInput" value="">
+    <input type="hidden" name="crop_data" id="cropDataInput" value="{{ item.crop_data ?? '' }}">
+
+    <div class="form-grid" style="gap:16px;">
+      <div class="field">
+        <label for="title">Título</label>
+        <input type="text" id="title" name="title" required value="{{ item.title ?? '' }}">
+      </div>
+
+      <div class="field">
+        <label>Conteúdo</label>
+        <div id="editor">{{ item.content_html ?? ''|raw }}</div>
+      </div>
+
+      <div class="field">
+        <label for="imageInput">Imagem do anúncio</label>
+        {% if item.image_url is defined and item.image_url %}
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">
+            Imagem atual: <a href="{{ item.image_url }}" target="_blank">ver</a>
+          </p>
+        {% endif %}
+        <input type="file" id="imageInput" name="image" accept="image/jpeg,image/png,image/webp">
+        <div class="crop-preview" id="cropPreviewWrap" style="display:none;margin-top:10px;">
+          <img id="cropPreview" alt="Pré-visualização para recorte">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="draft" {{ (item.status ?? 'draft') == 'draft' ? 'selected' : '' }}>Rascunho</option>
+          <option value="published" {{ (item.status ?? '') == 'published' ? 'selected' : '' }}>Publicado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions" style="margin-top:20px;justify-content:flex-start;">
+      <button type="submit" class="btn-admin">Salvar anúncio</button>
+      <a href="/admin/anuncios" class="btn-admin secondary">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

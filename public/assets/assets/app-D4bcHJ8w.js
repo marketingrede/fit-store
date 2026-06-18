@@ -1,0 +1,1 @@
+import{N as e,e as r}from"./htmx-setup-CQH2aphL.js";e.configure({showSpinner:!1});window.NProgress=e;document.addEventListener("htmx:beforeRequest",o=>{var t;document.getElementById("spa-outlet")&&(t=o.detail.elt)!=null&&t.closest("#spa-outlet, .topbar, .filter-sheet, .filter-sheet-backdrop")&&e.start()});document.addEventListener("DOMContentLoaded",()=>{r()});

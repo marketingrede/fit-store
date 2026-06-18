@@ -1,0 +1,40 @@
+{
+  "name": "fit-store",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "php -S localhost:8080 -t public",
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.js",
+    "test:perf": "playwright test tests/e2e/performance.spec.js",
+    "test:ui": "playwright test tests/e2e/catalog-modal.spec.js tests/e2e/catalog-filters.spec.js",
+    "test:usability": "playwright test tests/e2e/catalog-filters.spec.js",
+    "test:all": "npm run build && npm run test:unit && npm run test:e2e"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.6",
+    "a11y-dialog": "^8.1.5",
+    "chart.js": "^4.5.1",
+    "cropperjs": "^1.6.2",
+    "htmx.org": "^2.0.10",
+    "lucide": "^1.20.0",
+    "motion": "^12.40.0",
+    "nprogress": "^0.2.0",
+    "quill": "^2.0.3",
+    "swiper": "^11.2.8"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.52.0",
+    "@tailwindcss/vite": "^4.1.8",
+    "jsdom": "^26.1.0",
+    "tailwindcss": "^4.1.8",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}

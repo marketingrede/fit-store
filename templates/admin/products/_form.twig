@@ -1,0 +1,141 @@
+{% set item = product ?? {} %}
+
+<form
+  id="productForm"
+  method="post"
+  action="/admin/produtos"
+  enctype="multipart/form-data"
+  class="product-form-shell"
+>
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <input type="hidden" name="_list_q" value="{{ filters.q|default('') }}">
+  <input type="hidden" name="_list_categoria" value="{{ filters.categoria|default('') }}">
+  <input type="hidden" name="_list_status" value="{{ filters.status|default('') }}">
+  <input type="hidden" name="_list_page" value="{{ pagination.page|default(1) }}">
+  <input type="hidden" name="_list_sort" value="{{ filters.sort|default('id') }}">
+  <input type="hidden" name="_list_dir" value="{{ filters.dir|default('asc') }}">
+  <input type="hidden" name="_list_per_page" value="{{ pagination.per_page|default(15) }}">
+
+  <div class="product-form-shell__workspace">
+    <div class="product-form-shell__scroll">
+      <div id="productFormError" class="alert-error" style="display:none;"></div>
+
+      <section class="product-form-section" aria-labelledby="productFormSectionBasics">
+        <h3 class="product-form-section__title" id="productFormSectionBasics">Informações do produto</h3>
+        <div class="product-form-grid">
+          <div class="field product-form-grid__span-2">
+            <label for="productName">Nome</label>
+            <input type="text" id="productName" name="name" required value="{{ item.name ?? '' }}" placeholder="Nome do produto">
+          </div>
+          <div class="field">
+            <label for="productCategory">Categoria</label>
+            <select id="productCategory" name="category" required>
+              <option value="">Selecione...</option>
+              {% for slug, label in categories %}
+                <option value="{{ slug }}" {{ (item.category ?? '') == slug ? 'selected' : '' }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="productPrice">Preço (FITC)</label>
+            <input type="number" id="productPrice" name="price_fitc" min="1" required value="{{ item.price_fitc ?? '' }}" placeholder="0">
+          </div>
+          <div class="field product-form-grid__span-2">
+            <label for="productTag">Tag (badge)</label>
+            <select id="productTag" name="tag">
+              <option value="">Geral</option>
+              {% for tag in tags|default([]) %}
+                <option value="{{ tag.name }}" {{ (item.tag ?? '') == tag.name ? 'selected' : '' }}>{{ tag.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field product-form-grid__span-2">
+            <label for="productDescription">Descrição</label>
+            <textarea id="productDescription" name="description" rows="4" placeholder="Descreva o produto para a loja…">{{ item.description ?? '' }}</textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-form-section product-variations-admin" aria-labelledby="productFormSectionVariations">
+        <div class="product-variations-admin__header">
+          <h3 class="product-form-section__title" id="productFormSectionVariations">Variações</h3>
+          <button type="button" class="btn-admin secondary" id="addVariationBtn" data-action="add-variation">
+            <i data-lucide="plus"></i> Adicionar
+          </button>
+        </div>
+
+        <div class="variation-preset-bar" id="variationPresetBar">
+          <i data-lucide="wand-sparkles" aria-hidden="true"></i>
+          <select id="variationPresetSelect" aria-label="Aplicar preset de variação">
+            <option value="">Aplicar preset de variação…</option>
+          </select>
+          <button type="button" class="btn-admin secondary" id="applyVariationPresetBtn" data-action="apply-preset">
+            Aplicar
+          </button>
+        </div>
+
+        <p class="field-hint">Defina atributos como tamanho, volume, peso ou modelo. Marque se a escolha é obrigatória e se cada opção pode ter imagem.</p>
+        <input type="hidden" name="variations_json" id="variationsJson" value="">
+        <div id="variationsEditor" class="variations-editor"></div>
+      </section>
+    </div>
+
+    <aside class="product-form-shell__aside" aria-label="Imagem do produto">
+      <div class="product-form-aside__inner">
+        <label class="product-form-aside__label">Imagem do produto</label>
+        <div class="media-composer media-composer--sidebar" data-media-composer>
+          <input type="file" id="productImage" name="image" accept="image/jpeg,image/png,image/webp" hidden data-composer-file>
+          <div class="media-composer__preview" data-composer-preview>
+            <div class="media-composer__gallery-stage">
+              <button type="button" class="media-composer__gallery-nav media-composer__gallery-nav--prev" data-gallery-prev aria-label="Imagem anterior" hidden>
+                <i data-lucide="chevron-left"></i>
+              </button>
+              <button type="button" class="media-composer__gallery-zoom" data-gallery-zoom aria-label="Ampliar imagem" hidden>
+                <img src="" alt="Prévia da imagem" data-composer-img>
+                <span class="media-composer__gallery-zoom-hint" aria-hidden="true">
+                  <i data-lucide="zoom-in"></i>
+                </span>
+              </button>
+              <button type="button" class="media-composer__gallery-nav media-composer__gallery-nav--next" data-gallery-next aria-label="Próxima imagem" hidden>
+                <i data-lucide="chevron-right"></i>
+              </button>
+              <div class="media-composer__preview-actions">
+                <button type="button" class="media-composer__preview-btn" data-composer-change title="Trocar imagem">
+                  <i data-lucide="refresh-cw"></i>
+                </button>
+                <button type="button" class="media-composer__preview-btn" data-composer-remove title="Remover imagem">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
+            </div>
+            <div class="media-composer__gallery-meta">
+              <span class="media-composer__gallery-caption" data-gallery-caption hidden></span>
+              <span class="media-composer__gallery-counter" data-gallery-counter hidden></span>
+            </div>
+          </div>
+          <div class="media-composer__dropzone" data-composer-dropzone>
+            <i data-lucide="image"></i>
+            <strong>Adicionar foto</strong>
+            <span>Arraste ou clique para selecionar</span>
+          </div>
+          <div class="media-composer__url-row">
+            <i data-lucide="link" aria-hidden="true"></i>
+            <input type="url" id="productImageUrl" name="image_url" value="{{ item.image_url ?? '' }}" placeholder="URL da imagem…" data-composer-url>
+          </div>
+        </div>
+        <p id="productCurrentImage" class="field-hint product-form-aside__hint" style="display:none;"></p>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="product-form-shell__footer">
+    <label class="admin-checkbox product-form-shell__active">
+      <input type="checkbox" id="productActive" name="active" value="1" {{ (item.active ?? 1) ? 'checked' : '' }}>
+      Produto ativo na loja
+    </label>
+    <div class="product-form-shell__footer-actions">
+      <button type="button" class="btn-admin secondary" data-close-modal>Cancelar</button>
+      <button type="submit" class="btn-admin"><i data-lucide="save"></i> Salvar produto</button>
+    </div>
+  </footer>
+</form>

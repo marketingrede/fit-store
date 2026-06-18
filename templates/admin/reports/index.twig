@@ -1,0 +1,192 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block admin_content %}
+  <header class="admin-page-header">
+    <div>
+      <nav class="admin-breadcrumb" aria-label="Navegação">
+        <a href="/admin">Dashboard</a>
+        <i data-lucide="chevron-right" aria-hidden="true"></i>
+        <span>Relatórios</span>
+      </nav>
+      <h1 class="admin-page-title">Relatórios e exportações</h1>
+      <p class="admin-page-subtitle">Baixe dados da plataforma em CSV, ODS ou JSON para planilhas, BI e análises externas.</p>
+    </div>
+    <div class="admin-page-header__actions">
+      <a href="/admin" class="btn-admin secondary">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+      <a href="/" class="btn-admin secondary" target="_blank" rel="noopener">
+        <i data-lucide="store"></i> Ver loja
+      </a>
+    </div>
+  </header>
+
+  <div id="settings-flash">
+    {% if flash %}
+      {% include 'admin/settings/partials/_flash_alert.twig' %}
+    {% endif %}
+  </div>
+
+  <div class="admin-reports-page" data-reports-page>
+    <div class="admin-reports-quick-grid" role="tablist" aria-label="Atalhos de conjuntos de dados">
+      {% for key, meta in datasets %}
+        <button
+          type="button"
+          class="admin-reports-quick-card"
+          data-report-pick="{{ key }}"
+          aria-pressed="{{ loop.first ? 'true' : 'false' }}"
+        >
+          <span class="admin-reports-quick-card__icon admin-reports-quick-card__icon--{{ meta.icon_tone }}">
+            <i data-lucide="{{ meta.icon }}"></i>
+          </span>
+          <span class="admin-reports-quick-card__body">
+            <span class="admin-reports-quick-card__label">{{ meta.label }}</span>
+            <span class="admin-reports-quick-card__count">{{ preview_counts[key] }} registros</span>
+          </span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <div class="admin-reports-workspace">
+      <section class="admin-card admin-reports-export-card">
+        <header class="admin-settings-form-card__head">
+          <h2 class="admin-settings-form-card__title"><i data-lucide="download"></i> Configurar exportação</h2>
+          <p class="admin-settings-form-card__hint">Escolha o conjunto, ajuste o período quando disponível e selecione o formato de saída.</p>
+        </header>
+
+        <form
+          method="post"
+          action="/admin/relatorios/exportar"
+          class="admin-reports-form"
+          data-reports-form
+        >
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+          <fieldset class="admin-settings-fieldset">
+            <legend>Conjunto de dados</legend>
+            <div class="admin-reports-dataset-grid" role="radiogroup" aria-label="Conjunto de dados">
+              {% for key, meta in datasets %}
+                <label class="admin-reports-dataset-card" data-report-dataset-card>
+                  <input
+                    type="radio"
+                    name="dataset"
+                    value="{{ key }}"
+                    data-report-dataset
+                    data-supports-dates="{{ meta.supports_dates ? '1' : '0' }}"
+                    data-preview-count="{{ preview_counts[key] }}"
+                    data-description="{{ meta.description }}"
+                    data-fields="{{ meta.fields }}"
+                    data-label="{{ meta.label }}"
+                    {{ loop.first ? 'checked' : '' }}
+                  >
+                  <span class="admin-reports-dataset-card__surface">
+                    <span class="admin-reports-dataset-card__icon admin-reports-dataset-card__icon--{{ meta.icon_tone }}">
+                      <i data-lucide="{{ meta.icon }}"></i>
+                    </span>
+                    <span class="admin-reports-dataset-card__content">
+                      <span class="admin-reports-dataset-card__head">
+                        <strong>{{ meta.label }}</strong>
+                        <span class="admin-reports-dataset-card__badge">{{ preview_counts[key] }}</span>
+                      </span>
+                      <span class="admin-reports-dataset-card__text">{{ meta.description }}</span>
+                      {% if meta.supports_dates %}
+                        <span class="admin-reports-dataset-card__tag">Filtro por data</span>
+                      {% endif %}
+                    </span>
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          </fieldset>
+
+          <fieldset class="admin-settings-fieldset admin-reports-dates" data-report-dates>
+            <legend>Período <span class="admin-reports-optional">opcional</span></legend>
+            <p class="admin-reports-dates__hint">Disponível apenas para solicitações de troca.</p>
+            <div class="admin-reports-dates__grid">
+              <div class="field">
+                <label for="report-from">De</label>
+                <input type="date" id="report-from" name="from" data-report-from>
+              </div>
+              <div class="field">
+                <label for="report-to">Até</label>
+                <input type="date" id="report-to" name="to" data-report-to>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="admin-settings-fieldset">
+            <legend>Formato de saída</legend>
+            <div class="admin-reports-format-grid" role="radiogroup" aria-label="Formato de exportação">
+              <label class="admin-reports-format-card">
+                <input type="radio" name="format" value="csv" data-report-format checked>
+                <span class="admin-reports-format-card__surface">
+                  <i data-lucide="table" aria-hidden="true"></i>
+                  <strong>CSV</strong>
+                  <small>Excel e Google Sheets</small>
+                </span>
+              </label>
+              <label class="admin-reports-format-card">
+                <input type="radio" name="format" value="ods" data-report-format>
+                <span class="admin-reports-format-card__surface">
+                  <i data-lucide="file-spreadsheet" aria-hidden="true"></i>
+                  <strong>ODS</strong>
+                  <small>LibreOffice / OpenDocument</small>
+                </span>
+              </label>
+              <label class="admin-reports-format-card">
+                <input type="radio" name="format" value="json" data-report-format>
+                <span class="admin-reports-format-card__surface">
+                  <i data-lucide="braces" aria-hidden="true"></i>
+                  <strong>JSON</strong>
+                  <small>APIs e automações</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="admin-form-actions admin-form-actions--sticky">
+            <button type="submit" class="btn-admin">
+              <i data-lucide="file-down"></i> Baixar relatório
+            </button>
+            <p class="admin-reports-submit-hint" data-report-filename>movimenta-trades-{{ 'now'|date('Y-m-d') }}.csv</p>
+          </div>
+        </form>
+      </section>
+
+      <aside class="admin-card admin-reports-preview-card">
+        <header class="admin-settings-list-card__head">
+          <h2 class="admin-settings-list-card__title"><i data-lucide="scan-eye"></i> Prévia da exportação</h2>
+          <p class="admin-settings-list-card__hint">Resumo do arquivo que será gerado.</p>
+        </header>
+
+        <dl class="admin-reports-preview-list">
+          <div class="admin-reports-preview-item">
+            <dt>Conjunto</dt>
+            <dd data-report-preview-label>{{ datasets.trades.label }}</dd>
+          </div>
+          <div class="admin-reports-preview-item">
+            <dt>Registros</dt>
+            <dd data-report-preview-count>{{ preview_counts.trades }}</dd>
+          </div>
+          <div class="admin-reports-preview-item">
+            <dt>Colunas</dt>
+            <dd data-report-preview-fields>{{ datasets.trades.fields }}</dd>
+          </div>
+          <div class="admin-reports-preview-item">
+            <dt>Formato</dt>
+            <dd data-report-preview-format>CSV</dd>
+          </div>
+        </dl>
+
+        <div class="admin-reports-tips">
+          <h3 class="admin-reports-tips__title"><i data-lucide="lightbulb"></i> Dicas</h3>
+          <ul class="admin-reports-tips__list">
+            <li>Use <strong>CSV</strong> para abrir direto no Excel ou Google Sheets.</li>
+            <li><strong>ODS</strong> preserva melhor a compatibilidade com LibreOffice.</li>
+            <li><strong>JSON</strong> é ideal para integrações e scripts de análise.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+{% endblock %}

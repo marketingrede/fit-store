@@ -1,0 +1,45 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block admin_content %}
+  <header class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">Configurações do catálogo</h1>
+      <p class="admin-page-subtitle">Gerencie categorias, tags e modelos de variação usados nos produtos.</p>
+    </div>
+  </header>
+
+  <div class="admin-stat-grid admin-stat-grid--3">
+    <a href="/admin/configuracoes/categorias" class="admin-stat-card admin-stat-card--link">
+      <span class="admin-stat-card__icon"><i data-lucide="folders"></i></span>
+      <div>
+        <p class="admin-stat-card__label">Categorias</p>
+        <p class="admin-stat-card__value">{{ category_count }}</p>
+        <p class="admin-stat-card__hint">Filtros do catálogo</p>
+      </div>
+    </a>
+    <a href="/admin/configuracoes/tags" class="admin-stat-card admin-stat-card--link">
+      <span class="admin-stat-card__icon"><i data-lucide="tag"></i></span>
+      <div>
+        <p class="admin-stat-card__label">Tags (badges)</p>
+        <p class="admin-stat-card__value">{{ tag_count }}</p>
+        <p class="admin-stat-card__hint">Etiquetas nos cards</p>
+      </div>
+    </a>
+    <a href="/admin/configuracoes/variacoes" class="admin-stat-card admin-stat-card--link">
+      <span class="admin-stat-card__icon"><i data-lucide="sliders-horizontal"></i></span>
+      <div>
+        <p class="admin-stat-card__label">Variações</p>
+        <p class="admin-stat-card__value">{{ preset_count }}</p>
+        <p class="admin-stat-card__hint">Presets reutilizáveis</p>
+      </div>
+    </a>
+    <a href="/admin/configuracoes/ctas" class="admin-stat-card admin-stat-card--link">
+      <span class="admin-stat-card__icon"><i data-lucide="panel-top"></i></span>
+      <div>
+        <p class="admin-stat-card__label">Cards CTA</p>
+        <p class="admin-stat-card__value">{{ cta_count }}</p>
+        <p class="admin-stat-card__hint">Destaques do grid público</p>
+      </div>
+    </a>
+  </div>
+{% endblock %}

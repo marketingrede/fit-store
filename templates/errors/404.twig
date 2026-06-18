@@ -1,0 +1,11 @@
+{% extends 'layouts/app.twig' %}
+
+{% block title %}Página não encontrada | {{ app_name }}{% endblock %}
+
+{% block body %}
+  <main class="container" style="text-align:center;padding-top:80px;">
+    <h1 style="font-size:1.5rem;margin-bottom:8px;">Página não encontrada</h1>
+    <p class="empty-state" style="margin-bottom:20px;">O conteúdo que você procura não existe.</p>
+    <a href="/" class="cta-btn" style="display:inline-block;text-decoration:none;">Voltar ao catálogo</a>
+  </main>
+{% endblock %}

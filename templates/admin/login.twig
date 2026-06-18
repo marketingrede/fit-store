@@ -1,0 +1,56 @@
+{% extends 'layouts/app.twig' %}
+
+{% block title %}Login | Admin {{ app_name }}{% endblock %}
+
+{% block styles %}
+  {% set adminCss = vite_css('admin') %}
+  {% if adminCss %}<link rel="stylesheet" href="{{ adminCss }}">{% endif %}
+{% endblock %}
+
+{% block vite_script %}{% endblock %}
+
+{% block body_attrs %} class="admin-login-body"{% endblock %}
+
+{% block body %}
+  <main class="admin-login">
+    <div class="admin-login__panel">
+      <header class="admin-login__header">
+        <img src="/assets/logo.svg" alt="Movimenta+" class="admin-login__logo" width="461" height="181" decoding="async">
+        <p class="admin-login__eyebrow">Painel administrativo</p>
+        <h1 class="admin-login__title">{{ app_name }}</h1>
+        <p class="admin-login__subtitle">Entre para gerenciar produtos, anúncios e trocas.</p>
+      </header>
+
+      <form method="post" action="/admin/login" class="admin-login__form">
+        {% if error %}
+          <div class="admin-alert admin-alert--error">{{ error }}</div>
+        {% endif %}
+
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" required autocomplete="username" placeholder="seu@email.com">
+          </div>
+          <div class="field">
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+          </div>
+        </div>
+
+        <div class="admin-login__actions">
+          <button type="submit" class="btn-admin admin-login__submit">Entrar</button>
+        </div>
+      </form>
+
+      <footer class="admin-login__footer">
+        <a href="/" class="admin-login__back"><i data-lucide="arrow-left"></i> Voltar para a loja</a>
+      </footer>
+    </div>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ vite('admin') }}" defer></script>
+{% endblock %}
