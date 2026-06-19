@@ -7,7 +7,7 @@ services:
     branch: feature/fit-store-rede
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production

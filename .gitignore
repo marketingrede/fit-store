@@ -13,6 +13,10 @@
 /public/assets/manifest.json
 /public/uploads/*
 !/public/uploads/.gitkeep
+!/public/uploads/products/
+!/public/uploads/products/**
+!/public/uploads/catalog-ctas/
+!/public/uploads/catalog-ctas/**
 /test-results/
 /playwright-report/
 /tests/reports/
