@@ -14,7 +14,9 @@
     "test:perf": "playwright test tests/e2e/performance.spec.js",
     "test:ui": "playwright test tests/e2e/catalog-modal.spec.js tests/e2e/catalog-filters.spec.js",
     "test:usability": "playwright test tests/e2e/catalog-filters.spec.js",
-    "test:all": "npm run build && npm run test:unit && npm run test:e2e"
+    "test:all": "npm run build && npm run test:unit && npm run test:e2e",
+    "optimize:uploads": "node scripts/optimize-uploads.mjs",
+    "optimize:uploads:dry": "node scripts/optimize-uploads.mjs --dry-run"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
@@ -33,6 +35,7 @@
     "@playwright/test": "^1.52.0",
     "@tailwindcss/vite": "^4.1.8",
     "jsdom": "^26.1.0",
+    "sharp": "^0.35.2",
     "tailwindcss": "^4.1.8",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
