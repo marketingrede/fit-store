@@ -26,6 +26,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 COPY . .
 COPY --from=assets /app/public/assets ./public/assets
 
+RUN test -n "$(ls public/uploads/products/*.webp 2>/dev/null | head -1)" \
+    || (echo "ERRO: imagens em public/uploads/products/ não foram copiadas para a imagem Docker" && exit 1)
+
 RUN mkdir -p data public/uploads var/cache/twig \
     && chown -R www-data:www-data data public/uploads var
 
