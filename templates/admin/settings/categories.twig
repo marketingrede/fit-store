@@ -32,6 +32,7 @@
         method="post"
         action="/admin/configuracoes/categorias"
         class="admin-settings-form"
+        data-category-form
         hx-post="/admin/configuracoes/categorias"
         hx-target="#categories-tbody"
         hx-swap="innerHTML"
@@ -41,11 +42,12 @@
         <fieldset class="admin-settings-fieldset">
           <div class="field">
             <label for="catLabel">Nome exibido</label>
-            <input type="text" id="catLabel" name="label" required placeholder="Ex: Proteínas">
+            <input type="text" id="catLabel" name="label" required placeholder="Ex: Proteínas" data-cat-label autocomplete="off">
           </div>
           <div class="field">
             <label for="catSlug">Slug (URL)</label>
-            <input type="text" id="catSlug" name="slug" placeholder="proteinas (opcional)">
+            <input type="text" id="catSlug" name="slug" placeholder="proteinas" data-cat-slug autocomplete="off" spellcheck="false" inputmode="url">
+            <p class="admin-field-hint">Gerado automaticamente a partir do nome. Edite só se precisar de um slug específico.</p>
           </div>
         </fieldset>
         <fieldset class="admin-settings-fieldset">

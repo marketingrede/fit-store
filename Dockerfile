@@ -2,16 +2,19 @@ FROM node:22-alpine AS assets
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
-COPY vite.config.js resources ./resources
+COPY vite.config.js ./
+COPY resources ./resources
 RUN npm run build
 
 FROM php:8.3-apache
 RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
+    libffi-dev \
     unzip \
-    && docker-php-ext-install pdo pdo_sqlite \
+    && docker-php-ext-install pdo pdo_sqlite ffi \
     && a2enmod rewrite headers \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "ffi.enable=true" > /usr/local/etc/php/conf.d/ffi.ini
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

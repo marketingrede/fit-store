@@ -22,7 +22,7 @@
     {% endif %}
   </div>
 
-  <div class="admin-variations-page">
+  <div class="admin-variations-page admin-settings-layout">
     <aside class="admin-settings-form-card admin-card">
       <header class="admin-settings-form-card__head">
         <h2 class="admin-settings-form-card__title"><i data-lucide="circle-plus"></i> Novo preset</h2>
@@ -31,7 +31,7 @@
       <form
         method="post"
         action="/admin/configuracoes/variacoes"
-        class="admin-settings-form"
+        class="admin-settings-form admin-variation-preset-form"
         data-new-variation-form
         hx-post="/admin/configuracoes/variacoes"
         hx-target="#variations-list"
@@ -40,15 +40,17 @@
       >
         <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
         <fieldset class="admin-settings-fieldset">
-          <div class="field">
-            <label for="presetName">Nome do atributo</label>
-            <input type="text" id="presetName" name="name" required placeholder="Ex: Tamanho">
+          <div class="admin-variation-preset-fields">
+            <div class="field">
+              <label for="presetName">Nome do atributo</label>
+              <input type="text" id="presetName" name="name" required placeholder="Ex: Tamanho" autocomplete="off">
+            </div>
+            <div class="field admin-variation-preset-fields__unit">
+              <label for="presetUnit">Unidade (opcional)</label>
+              <input type="text" id="presetUnit" name="unit" placeholder="ml, g…" autocomplete="off">
+            </div>
           </div>
-          <div class="field">
-            <label for="presetUnit">Unidade (opcional)</label>
-            <input type="text" id="presetUnit" name="unit" placeholder="ml, g, kg…">
-          </div>
-          <div class="field">
+          <div class="field admin-variation-preset-fields__options">
             <label for="presetOptions">Opções</label>
             <textarea id="presetOptions" name="options" rows="4" required placeholder="P&#10;M&#10;G&#10;GG" data-options-input></textarea>
             <div class="admin-option-chips" data-option-chips aria-hidden="true"></div>
@@ -56,12 +58,12 @@
         </fieldset>
         <fieldset class="admin-settings-fieldset">
           <legend>Comportamento</legend>
-          <div class="admin-settings-flag-group">
-            <label class="admin-flag-toggle admin-flag-toggle--block">
+          <div class="admin-settings-flags admin-variation-preset-flags">
+            <label class="admin-flag-toggle">
               <input type="checkbox" name="required" value="1" checked>
               <span>Obrigatório</span>
             </label>
-            <label class="admin-flag-toggle admin-flag-toggle--block">
+            <label class="admin-flag-toggle">
               <input type="checkbox" name="allow_option_image" value="1">
               <span>Imagem por opção</span>
             </label>
@@ -83,11 +85,21 @@
     </aside>
 
     <section class="admin-settings-list-card admin-card">
-      <header class="admin-settings-list-card__head">
-        <h2 class="admin-settings-list-card__title"><i data-lucide="sliders-horizontal"></i> Presets cadastrados</h2>
-        <p class="admin-settings-list-card__hint">Edite cada preset no próprio card e clique em Salvar.</p>
+      <header class="admin-settings-list-card__head admin-variation-list__head">
+        <div>
+          <h2 class="admin-settings-list-card__title"><i data-lucide="sliders-horizontal"></i> Presets cadastrados</h2>
+          <p class="admin-settings-list-card__hint">Edite cada preset no próprio card e clique em Salvar.</p>
+        </div>
+        <div class="admin-variation-list__actions">
+          <button type="button" class="btn-admin secondary" data-variation-expand-all>
+            <i data-lucide="chevrons-down"></i> Expandir todos
+          </button>
+          <button type="button" class="btn-admin secondary" data-variation-collapse-all>
+            <i data-lucide="chevrons-up"></i> Recolher todos
+          </button>
+        </div>
       </header>
-      <div id="variations-list" class="admin-variation-list">
+      <div id="variations-list" class="admin-variation-list" data-variations-list>
         {% include 'admin/settings/partials/_variations_rows.twig' %}
       </div>
     </section>

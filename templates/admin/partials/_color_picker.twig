@@ -1,12 +1,19 @@
+{% set field_name = name|default('color') %}
 {% set picker_id = id|default(field_name) %}
 {% set color_value = value|default('#0f766e') %}
-{% set field_name = name|default('color') %}
 
 <div class="color-picker{{ compact ? ' color-picker--compact' : '' }}" data-color-picker data-initial="{{ color_value }}">
   <input type="hidden" name="{{ field_name }}" value="{{ color_value }}" data-color-value>
 
-  <button type="button" class="color-picker__trigger" data-color-trigger aria-label="Escolher cor" aria-haspopup="dialog" aria-expanded="false">
-    <span class="color-picker__swatch" data-color-swatch style="background: {{ color_value }}"></span>
+  <button
+    type="button"
+    id="{{ picker_id }}_trigger"
+    class="color-picker__trigger"
+    data-color-trigger
+    aria-label="Escolher cor"
+    aria-haspopup="dialog"
+    aria-expanded="false"
+  >    <span class="color-picker__swatch" data-color-swatch style="background: {{ color_value }}"></span>
     {% if not compact %}
       <span class="color-picker__trigger-label">Escolher cor</span>
     {% endif %}

@@ -42,16 +42,30 @@
         <div class="admin-settings-form-preview">
           <span class="admin-tag-preview" data-new-tag-preview style="--tag-color: #0f766e">Nova tag</span>
         </div>
-        <fieldset class="admin-settings-fieldset">
+
+        <fieldset class="admin-settings-fieldset admin-settings-fieldset--solo">
           <div class="field">
             <label for="tagName">Nome</label>
-            <input type="text" id="tagName" name="name" required placeholder="Ex: Proteína" data-tag-name-input>
+            <input
+              type="text"
+              id="tagName"
+              name="name"
+              required
+              placeholder="Ex: Proteína"
+              data-tag-name-input
+              autocomplete="off"
+            >
           </div>
+        </fieldset>
+
+        <fieldset class="admin-settings-fieldset admin-settings-fieldset--solo">
+          <legend>Estilo</legend>
           <div class="field">
-            <label>Cor do badge</label>
+            <label for="newTagColor_trigger">Cor do badge</label>
             {% include 'admin/partials/_color_picker.twig' with { name: 'color', value: '#0f766e', id: 'newTagColor' } %}
           </div>
         </fieldset>
+
         <fieldset class="admin-settings-fieldset">
           <legend>Exibição</legend>
           <div class="admin-settings-form-row">

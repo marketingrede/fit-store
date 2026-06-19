@@ -1168,8 +1168,9 @@ a.catalog-feature-card:hover .catalog-feature-card__cta {
   }
 
   .products-grid {
-    column-gap: 10px;
-    row-gap: 16px;
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    row-gap: 20px;
   }
 
   .product-title {

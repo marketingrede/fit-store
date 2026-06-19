@@ -6,6 +6,7 @@
 /data/*.db-journal
 /data/*.db-wal
 /data/*.db-shm
+/data/*.sql
 /public/assets/.vite/
 /public/assets/js/
 /public/assets/css/

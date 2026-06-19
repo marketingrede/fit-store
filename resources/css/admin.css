@@ -1008,13 +1008,18 @@ body.is-admin-sidebar-open {
 /* Split layout (settings) */
 .admin-settings-layout {
   display: grid;
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
 
 .admin-settings-layout--wide-form {
-  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+}
+
+.admin-settings-layout > .admin-settings-form-card,
+.admin-settings-layout > .admin-settings-list-card {
+  min-width: 0;
 }
 
 .admin-settings-form-card {
@@ -1022,6 +1027,8 @@ body.is-admin-sidebar-open {
   top: 88px;
   padding: 0;
   overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .admin-settings-form-card__head {
@@ -1056,15 +1063,58 @@ body.is-admin-sidebar-open {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-settings-fieldset {
   margin: 0;
   padding: 0;
   border: none;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.admin-settings-fieldset .field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.admin-settings-fieldset .field label {
+  margin-bottom: 0;
+}
+
+.admin-settings-fieldset .field input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+.admin-settings-fieldset .field select,
+.admin-settings-fieldset .field textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 42px;
+}
+
+.admin-settings-fieldset .field .color-picker {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  width: 100%;
+}
+
+.admin-settings-fieldset .field .color-picker__trigger {
+  width: 100%;
+  justify-content: flex-start;
+  min-height: 42px;
+}
+
+.admin-settings-fieldset--solo {
+  gap: 0;
+}
+
+.admin-settings-form-preview + .admin-settings-fieldset {
+  margin-top: 0;
 }
 
 .admin-settings-fieldset legend {
@@ -1078,15 +1128,20 @@ body.is-admin-sidebar-open {
 }
 
 .admin-settings-form-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px 16px;
+  min-width: 0;
 }
 
 .admin-settings-form-row .field {
-  flex: 1;
-  min-width: 100px;
+  min-width: 0;
+}
+
+.admin-settings-form-row .admin-toggle {
+  align-self: end;
+  margin-bottom: 10px;
 }
 
 .admin-settings-form-preview {
@@ -1283,16 +1338,68 @@ body.is-admin-sidebar-open {
   border: 1px solid color-mix(in srgb, var(--brand-blue) 22%, #ffffff);
 }
 
-/* Variações — lista em cards (evita bugs de tabela + display:contents) */
-.admin-variations-page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Variações — layout lado a lado + cards colapsáveis */
+.admin-variations-page.admin-settings-layout .admin-settings-form-card {
+  position: sticky;
+  top: 88px;
 }
 
-.admin-variations-page .admin-settings-form-card {
-  position: static;
-  max-width: 440px;
+.admin-variation-list__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-variation-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.admin-variation-list__actions .btn-admin {
+  padding: 7px 12px;
+  font-size: 0.76rem;
+}
+
+.admin-variation-preset-form .admin-variation-preset-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px;
+  gap: 12px;
+  align-items: start;
+}
+
+.admin-variation-preset-form .admin-variation-preset-fields__unit input {
+  text-align: center;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.admin-variation-preset-form .admin-variation-preset-fields__options textarea {
+  min-height: 96px;
+  max-height: 168px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.admin-variation-preset-form .admin-variation-preset-flags {
+  margin-bottom: 12px;
+}
+
+.admin-variation-preset-form .admin-settings-fieldset .field textarea {
+  min-height: 96px;
+}
+
+@media (max-width: 480px) {
+  .admin-variation-preset-form .admin-variation-preset-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-variation-preset-form .admin-variation-preset-fields__unit input {
+    text-align: left;
+  }
 }
 
 .admin-variation-list {
@@ -1316,6 +1423,73 @@ body.is-admin-sidebar-open {
   background: #fff;
   overflow: hidden;
   box-shadow: var(--admin-shadow);
+}
+
+.admin-variation-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: color-mix(in srgb, var(--brand-surface-alt) 50%, #ffffff);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: var(--admin-text);
+  transition: background 0.15s ease;
+}
+
+.admin-variation-card__header:hover {
+  background: color-mix(in srgb, var(--brand-teal) 6%, #ffffff);
+}
+
+.admin-variation-card:not(.is-collapsed) .admin-variation-card__header {
+  border-bottom-color: var(--admin-divider);
+}
+
+.admin-variation-card__chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--brand-teal-dark);
+  transition: transform 0.2s ease;
+}
+
+.admin-variation-card.is-collapsed .admin-variation-card__chevron {
+  transform: rotate(-90deg);
+}
+
+.admin-variation-card__title {
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--admin-text);
+}
+
+.admin-variation-card__unit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--admin-muted);
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-divider);
+}
+
+.admin-variation-card__summary {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--admin-muted);
+  white-space: nowrap;
+}
+
+.admin-variation-card__collapsible {
+  display: block;
+}
+
+.admin-variation-card.is-collapsed .admin-variation-card__collapsible {
+  display: none;
 }
 
 .admin-variation-card:nth-child(even) {
@@ -1410,8 +1584,12 @@ body.is-admin-sidebar-open {
     gap: 14px;
   }
 
-  .admin-variations-page .admin-settings-form-card {
-    max-width: none;
+  .admin-variation-card__summary {
+    display: none;
+  }
+
+  .admin-variation-list__head {
+    flex-direction: column;
   }
 }
 
@@ -1691,6 +1869,10 @@ body.is-admin-sidebar-open {
   gap: 12px;
 }
 
+.field {
+  min-width: 0;
+}
+
 .field label {
   display: block;
   font-size: 0.82rem;
@@ -1703,6 +1885,9 @@ body.is-admin-sidebar-open {
 .field select,
 .field textarea {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--admin-border);
@@ -1718,6 +1903,20 @@ body.is-admin-sidebar-open {
 .field textarea:focus {
   border-color: color-mix(in srgb, var(--brand-teal) 55%, #ffffff);
   box-shadow: 0 0 0 3px var(--brand-teal-soft);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--admin-muted);
+  opacity: 0.72;
+}
+
+.admin-field-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--admin-muted);
+  overflow-wrap: anywhere;
 }
 
 .form-actions {

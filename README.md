@@ -47,7 +47,11 @@ npm run dev             # watch de assets (opcional)
 docker compose up --build
 ```
 
-Volumes persistentes:
+### Render + Turso (produção)
+
+Ver [docs/deploy-render-turso.md](docs/deploy-render-turso.md).
+
+Volumes persistentes (Docker local):
 - `./data` → SQLite
 - `./public/uploads` → imagens
 

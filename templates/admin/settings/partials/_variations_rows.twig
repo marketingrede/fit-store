@@ -1,102 +1,126 @@
 {% for item in items %}
-  <article class="admin-variation-card" data-variation-row>
-    <form
-      id="variation-form-{{ item.id }}"
-      method="post"
-      action="/admin/configuracoes/variacoes/{{ item.id }}"
-      class="admin-variation-card__form"
-      hx-post="/admin/configuracoes/variacoes/{{ item.id }}"
-      hx-target="#variations-list"
-      hx-swap="innerHTML"
+  <article class="admin-variation-card" data-variation-card>
+    <button
+      type="button"
+      class="admin-variation-card__header"
+      data-variation-toggle
+      aria-expanded="true"
+      aria-controls="variation-body-{{ item.id }}"
     >
-      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <i data-lucide="chevron-down" class="admin-variation-card__chevron" aria-hidden="true"></i>
+      <span class="admin-variation-card__title" data-variation-title>{{ item.name }}</span>
+      {% if item.unit %}
+        <span class="admin-variation-card__unit">{{ item.unit }}</span>
+      {% endif %}
+      <span class="admin-variation-card__summary">
+        {{ item.options|length }} opção(ões)
+        {% if not item.active %} · Inativo{% endif %}
+        {% if item.required %} · Obrigatório{% endif %}
+      </span>
+    </button>
 
-      <div class="admin-variation-card__grid">
-        <div class="admin-variation-card__col">
-          <span class="admin-variation-card__label">Atributo</span>
-          <input
-            type="text"
-            name="name"
-            value="{{ item.name }}"
-            required
-            class="admin-input-inline"
-            aria-label="Nome do atributo"
-          >
-          <input
-            type="text"
-            name="unit"
-            value="{{ item.unit }}"
-            class="admin-input-inline admin-input-inline--muted"
-            placeholder="Unidade (opcional)"
-            aria-label="Unidade"
-          >
-        </div>
+    <div class="admin-variation-card__collapsible" id="variation-body-{{ item.id }}" data-variation-collapsible>
+      <form
+        id="variation-form-{{ item.id }}"
+        method="post"
+        action="/admin/configuracoes/variacoes/{{ item.id }}"
+        class="admin-variation-card__form"
+        hx-post="/admin/configuracoes/variacoes/{{ item.id }}"
+        hx-target="#variations-list"
+        hx-swap="innerHTML"
+      >
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
 
-        <div class="admin-variation-card__col admin-variation-card__col--options">
-          <span class="admin-variation-card__label">Opções</span>
-          <textarea
-            name="options"
-            rows="3"
-            required
-            class="admin-input-inline admin-textarea-inline"
-            aria-label="Opções"
-            placeholder="Uma opção por linha"
-          >{{ item.options|join("\n") }}</textarea>
-          <p class="admin-variation-card__options-hint">{{ item.options|length }} opção(ões)</p>
-        </div>
+        <div class="admin-variation-card__grid">
+          <div class="admin-variation-card__col">
+            <span class="admin-variation-card__label">Atributo</span>
+            <input
+              type="text"
+              name="name"
+              value="{{ item.name }}"
+              required
+              class="admin-input-inline"
+              aria-label="Nome do atributo"
+              data-variation-name-input
+            >
+            <input
+              type="text"
+              name="unit"
+              value="{{ item.unit }}"
+              class="admin-input-inline admin-input-inline--muted"
+              placeholder="Unidade (opcional)"
+              aria-label="Unidade"
+            >
+          </div>
 
-        <div class="admin-variation-card__col admin-variation-card__col--config">
-          <span class="admin-variation-card__label">Configuração</span>
-          <div class="admin-variation-card__config">
-            <label class="admin-flag-toggle admin-flag-toggle--block">
-              <input type="checkbox" name="required" value="1" {{ item.required ? 'checked' : '' }}>
-              <span>Obrigatório</span>
-            </label>
-            <label class="admin-flag-toggle admin-flag-toggle--block">
-              <input type="checkbox" name="allow_option_image" value="1" {{ item.allow_option_image ? 'checked' : '' }}>
-              <span>Imagem por opção</span>
-            </label>
-            <div class="admin-variation-card__config-row">
-              <div class="field">
-                <label for="variationSort{{ item.id }}">Ordem</label>
-                <input
-                  type="number"
-                  id="variationSort{{ item.id }}"
-                  name="sort_order"
-                  value="{{ item.sort_order }}"
-                  min="0"
-                  class="admin-input-inline admin-input-inline--narrow"
-                >
+          <div class="admin-variation-card__col admin-variation-card__col--options">
+            <span class="admin-variation-card__label">Opções</span>
+            <textarea
+              name="options"
+              rows="3"
+              required
+              class="admin-input-inline admin-textarea-inline"
+              aria-label="Opções"
+              placeholder="Uma opção por linha"
+            >{{ item.options|join("\n") }}</textarea>
+            <p class="admin-variation-card__options-hint">{{ item.options|length }} opção(ões)</p>
+          </div>
+
+          <div class="admin-variation-card__col admin-variation-card__col--config">
+            <span class="admin-variation-card__label">Configuração</span>
+            <div class="admin-variation-card__config">
+              <div class="admin-settings-flags">
+                <label class="admin-flag-toggle">
+                  <input type="checkbox" name="required" value="1" {{ item.required ? 'checked' : '' }}>
+                  <span>Obrigatório</span>
+                </label>
+                <label class="admin-flag-toggle">
+                  <input type="checkbox" name="allow_option_image" value="1" {{ item.allow_option_image ? 'checked' : '' }}>
+                  <span>Imagem por opção</span>
+                </label>
               </div>
-              <label class="admin-toggle" title="Preset ativo">
-                <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
-                <span class="admin-toggle__track" aria-hidden="true"></span>
-                <span class="admin-toggle__label">Ativo</span>
-              </label>
+              <div class="admin-variation-card__config-row">
+                <div class="field">
+                  <label for="variationSort{{ item.id }}">Ordem</label>
+                  <input
+                    type="number"
+                    id="variationSort{{ item.id }}"
+                    name="sort_order"
+                    value="{{ item.sort_order }}"
+                    min="0"
+                    class="admin-input-inline admin-input-inline--narrow"
+                  >
+                </div>
+                <label class="admin-toggle" title="Preset ativo">
+                  <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                  <span class="admin-toggle__track" aria-hidden="true"></span>
+                  <span class="admin-toggle__label">Ativo</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
-
-    <footer class="admin-variation-card__footer">
-      <button type="submit" class="btn-admin secondary" form="variation-form-{{ item.id }}">
-        <i data-lucide="save"></i> Salvar
-      </button>
-      <form
-        method="post"
-        action="/admin/configuracoes/variacoes/{{ item.id }}/excluir"
-        hx-post="/admin/configuracoes/variacoes/{{ item.id }}/excluir"
-        hx-target="#variations-list"
-        hx-swap="innerHTML"
-        hx-confirm="Excluir este preset?"
-      >
-        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
-        <button type="submit" class="btn-admin danger">
-          <i data-lucide="trash-2"></i> Excluir
-        </button>
       </form>
-    </footer>
+
+      <footer class="admin-variation-card__footer">
+        <button type="submit" class="btn-admin secondary" form="variation-form-{{ item.id }}">
+          <i data-lucide="save"></i> Salvar
+        </button>
+        <form
+          method="post"
+          action="/admin/configuracoes/variacoes/{{ item.id }}/excluir"
+          hx-post="/admin/configuracoes/variacoes/{{ item.id }}/excluir"
+          hx-target="#variations-list"
+          hx-swap="innerHTML"
+          hx-confirm="Excluir este preset?"
+        >
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button type="submit" class="btn-admin danger">
+            <i data-lucide="trash-2"></i> Excluir
+          </button>
+        </form>
+      </footer>
+    </div>
   </article>
 {% else %}
   <p class="admin-variation-list__empty">Nenhum preset cadastrado.</p>

@@ -3,7 +3,7 @@
   "description": "Fit Store - Loja do Movimenta+",
   "type": "project",
   "require": {
-    "php": "^8.2",
+    "php": "^8.3",
     "slim/slim": "^4.14",
     "slim/psr7": "^1.7",
     "slim/twig-view": "^3.4",
@@ -11,7 +11,9 @@
     "monolog/monolog": "^3.0",
     "php-di/php-di": "^7.0",
     "ext-pdo": "*",
-    "ext-pdo_sqlite": "*"
+    "ext-pdo_sqlite": "*",
+    "ext-ffi": "*",
+    "turso/libsql": "^0.2.5"
   },
   "autoload": {
     "psr-4": {
