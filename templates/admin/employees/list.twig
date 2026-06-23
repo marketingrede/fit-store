@@ -1,0 +1,46 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Contas de Colaboradores | Admin {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>Contas de Colaboradores</h1>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Matrícula</th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Saldo</th>
+          <th>Último login</th>
+          <th>Criado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+          <tr>
+            <td><strong>{{ emp.employee_id }}</strong></td>
+            <td>{{ emp.full_name }}</td>
+            <td>{{ emp.email }}</td>
+            <td><strong>{{ wallets[emp.id] ?? 0 }}</strong> FITC</td>
+            <td>{{ emp.last_login_at ?? 'Nunca' }}</td>
+            <td>{{ emp.created_at }}</td>
+            <td>
+              <a href="/admin/colaboradores/contas/{{ emp.id }}" class="btn-admin small secondary">Detalhes</a>
+              <form method="post" action="/admin/colaboradores/contas/{{ emp.id }}/excluir" style="display:inline" onsubmit="return confirm('Excluir esta conta?')">
+                <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-admin small danger">Excluir</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="admin-table-empty">Nenhuma conta de colaborador cadastrada.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

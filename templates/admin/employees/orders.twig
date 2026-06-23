@@ -1,0 +1,62 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Pedidos de Resgate | Admin {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>Pedidos de Resgate</h1>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Data</th>
+          <th>Colaborador</th>
+          <th>Produto</th>
+          <th style="text-align:right">FITC</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created_at }}</td>
+            <td>
+              <strong>{{ employee_names[order.employee_id] ?? 'Desconhecido' }}</strong>
+              <span style="font-size:.75rem;color:var(--grey-400)"> ({{ order.employee_id }})</span>
+            </td>
+            <td>{{ order.product_name }}</td>
+            <td style="text-align:right;font-weight:600">-{{ order.product_price_fitc }}</td>
+            <td>
+              {% if order.status == 'confirmed' %}
+                <span class="admin-badge admin-badge--success">Confirmado</span>
+              {% elseif order.status == 'fulfilled' %}
+                <span class="admin-badge admin-badge--info">Entregue</span>
+              {% elseif order.status == 'cancelled' %}
+                <span class="admin-badge admin-badge--danger">Cancelado</span>
+              {% else %}
+                <span class="admin-badge">{{ order.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="/admin/colaboradores/pedidos/{{ order.id }}/status" style="display:inline">
+                <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                <select name="status" onchange="this.form.submit()" style="font-size:.75rem;padding:.25rem">
+                  <option value="confirmed" {{ order.status == 'confirmed' ? 'selected' : '' }}>Confirmado</option>
+                  <option value="fulfilled" {{ order.status == 'fulfilled' ? 'selected' : '' }}>Entregue</option>
+                  <option value="cancelled" {{ order.status == 'cancelled' ? 'selected' : '' }}>Cancelado</option>
+                </select>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="admin-table-empty">Nenhum pedido registrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

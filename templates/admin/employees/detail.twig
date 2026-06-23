@@ -1,0 +1,114 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}{{ employee.full_name }} | Colaborador {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>{{ employee.full_name }}</h1>
+    <a href="/admin/colaboradores/contas" class="btn-admin secondary">Voltar</a>
+  </div>
+
+  <div class="admin-stats-grid">
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="hash"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Matrícula</div>
+        <div class="admin-stat-card__value">{{ employee.employee_id }}</div>
+      </div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="wallet"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Saldo</div>
+        <div class="admin-stat-card__value">{{ balance }} FITC</div>
+      </div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="mail"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">E-mail</div>
+        <div class="admin-stat-card__value" style="font-size:.875rem">{{ employee.email }}</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="margin:1.5rem 0 1rem;font-size:1rem;font-weight:600">Últimas movimentações</h2>
+  {% if ledger|length > 0 %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Descrição</th>
+            <th style="text-align:right">Valor</th>
+            <th style="text-align:right">Saldo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in ledger %}
+            <tr>
+              <td>{{ entry.created_at }}</td>
+              <td>
+                {% if entry.type == 'credit' %}
+                  <span class="admin-badge admin-badge--success">Crédito</span>
+                {% elseif entry.type == 'debit' %}
+                  <span class="admin-badge admin-badge--danger">Débito</span>
+                {% else %}
+                  <span class="admin-badge admin-badge--info">Estorno</span>
+                {% endif %}
+              </td>
+              <td>{{ entry.description ?? '—' }}</td>
+              <td style="text-align:right;font-weight:600">
+                {% if entry.type == 'credit' %}+{% else %}-{% endif %}{{ entry.amount_fitc }} FITC
+              </td>
+              <td style="text-align:right">{{ entry.balance_after_fitc }} FITC</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color:var(--grey-500)">Nenhuma movimentação registrada.</p>
+  {% endif %}
+
+  <h2 style="margin:1.5rem 0 1rem;font-size:1rem;font-weight:600">Resgates</h2>
+  {% if orders|length > 0 %}
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Data</th>
+            <th>Produto</th>
+            <th style="text-align:right">FITC</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.created_at }}</td>
+              <td>{{ order.product_name }}</td>
+              <td style="text-align:right;font-weight:600">-{{ order.product_price_fitc }}</td>
+              <td>
+                {% if order.status == 'confirmed' %}
+                  <span class="admin-badge admin-badge--success">Confirmado</span>
+                {% elseif order.status == 'fulfilled' %}
+                  <span class="admin-badge admin-badge--info">Entregue</span>
+                {% elseif order.status == 'cancelled' %}
+                  <span class="admin-badge admin-badge--danger">Cancelado</span>
+                {% else %}
+                  <span class="admin-badge">{{ order.status }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color:var(--grey-500)">Nenhum resgate realizado.</p>
+  {% endif %}
+{% endblock %}

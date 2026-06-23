@@ -9,6 +9,7 @@ use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\ReportsController;
 use App\Controllers\Admin\SettingsController;
+use App\Controllers\Admin\EmployeeManagementController;
 use App\Controllers\Admin\TradeRequestController;
 use App\Middleware\AuthMiddleware;
 use Slim\App;
@@ -67,5 +68,23 @@ return function (App $app): void {
 
         $group->get('/conta', [AccountController::class, 'form']);
         $group->post('/conta/senha', [AccountController::class, 'updatePassword']);
+
+        $group->get('/colaboradores', [EmployeeManagementController::class, 'index']);
+        $group->get('/colaboradores/elegiveis', [EmployeeManagementController::class, 'eligibleList']);
+        $group->get('/colaboradores/elegiveis/novo', [EmployeeManagementController::class, 'eligibleCreateForm']);
+        $group->post('/colaboradores/elegiveis', [EmployeeManagementController::class, 'eligibleStore']);
+        $group->get('/colaboradores/elegiveis/{id:[0-9]+}/editar', [EmployeeManagementController::class, 'eligibleEditForm']);
+        $group->post('/colaboradores/elegiveis/{id:[0-9]+}', [EmployeeManagementController::class, 'eligibleUpdate']);
+        $group->post('/colaboradores/elegiveis/{id:[0-9]+}/excluir', [EmployeeManagementController::class, 'eligibleDelete']);
+
+        $group->get('/colaboradores/contas', [EmployeeManagementController::class, 'employeeList']);
+        $group->get('/colaboradores/contas/{id:[0-9]+}', [EmployeeManagementController::class, 'employeeDetail']);
+        $group->post('/colaboradores/contas/{id:[0-9]+}/excluir', [EmployeeManagementController::class, 'employeeDelete']);
+
+        $group->get('/colaboradores/saldos', [EmployeeManagementController::class, 'balances']);
+        $group->post('/colaboradores/saldos/ajustar', [EmployeeManagementController::class, 'balanceAdjust']);
+
+        $group->get('/colaboradores/pedidos', [EmployeeManagementController::class, 'ordersList']);
+        $group->post('/colaboradores/pedidos/{id:[0-9]+}/status', [EmployeeManagementController::class, 'orderUpdateStatus']);
     })->add(new AuthMiddleware());
 };

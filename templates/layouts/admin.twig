@@ -41,6 +41,26 @@
           <i data-lucide="arrow-left-right"></i>
           <span>Trocas</span>
         </a>
+        <a href="/admin/colaboradores" class="admin-sidebar__link {{ active_nav == 'employees' ? 'is-active' : '' }}">
+          <i data-lucide="users"></i>
+          <span>Colaboradores</span>
+        </a>
+        <a href="/admin/colaboradores/elegiveis" class="admin-sidebar__link admin-sidebar__link--sub {{ active_nav == 'employees_eligible' ? 'is-active' : '' }}">
+          <i data-lucide="user-check"></i>
+          <span>Elegíveis</span>
+        </a>
+        <a href="/admin/colaboradores/contas" class="admin-sidebar__link admin-sidebar__link--sub {{ active_nav == 'employees_list' ? 'is-active' : '' }}">
+          <i data-lucide="users"></i>
+          <span>Contas</span>
+        </a>
+        <a href="/admin/colaboradores/saldos" class="admin-sidebar__link admin-sidebar__link--sub {{ active_nav == 'employees_balances' ? 'is-active' : '' }}">
+          <i data-lucide="coins"></i>
+          <span>Saldos</span>
+        </a>
+        <a href="/admin/colaboradores/pedidos" class="admin-sidebar__link admin-sidebar__link--sub {{ active_nav == 'employees_orders' ? 'is-active' : '' }}">
+          <i data-lucide="package"></i>
+          <span>Pedidos</span>
+        </a>
         <a href="/admin/relatorios" class="admin-sidebar__link {{ active_nav == 'reports' ? 'is-active' : '' }}">
           <i data-lucide="file-bar-chart"></i>
           <span>Relatórios</span>

@@ -1,0 +1,78 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Colaboradores | Admin {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>Colaboradores</h1>
+  </div>
+
+  <div class="admin-stats-grid">
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="users"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Elegíveis</div>
+        <div class="admin-stat-card__value">{{ stats.total_eligible }}</div>
+      </div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="user-check"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Ativos</div>
+        <div class="admin-stat-card__value">{{ stats.active_eligible }}</div>
+      </div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="user-plus"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Cadastrados</div>
+        <div class="admin-stat-card__value">{{ stats.registered }}</div>
+      </div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="wallet"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Total FITC</div>
+        <div class="admin-stat-card__value">{{ stats.total_balance }}</div>
+      </div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-card__icon"><i data-lucide="shopping-bag"></i></div>
+      <div class="admin-stat-card__body">
+        <div class="admin-stat-card__label">Pedidos</div>
+        <div class="admin-stat-card__value">{{ stats.total_orders }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-actions-grid">
+    <a href="/admin/colaboradores/elegiveis" class="admin-action-card">
+      <div class="admin-action-card__icon"><i data-lucide="list"></i></div>
+      <div class="admin-action-card__body">
+        <div class="admin-action-card__title">Elegíveis</div>
+        <div class="admin-action-card__desc">Gerenciar whitelist de colaboradores</div>
+      </div>
+    </a>
+    <a href="/admin/colaboradores/contas" class="admin-action-card">
+      <div class="admin-action-card__icon"><i data-lucide="users"></i></div>
+      <div class="admin-action-card__body">
+        <div class="admin-action-card__title">Contas</div>
+        <div class="admin-action-card__desc">Colaboradores cadastrados</div>
+      </div>
+    </a>
+    <a href="/admin/colaboradores/saldos" class="admin-action-card">
+      <div class="admin-action-card__icon"><i data-lucide="coins"></i></div>
+      <div class="admin-action-card__body">
+        <div class="admin-action-card__title">Saldos</div>
+        <div class="admin-action-card__desc">Gerenciar saldos Fitcoin</div>
+      </div>
+    </a>
+    <a href="/admin/colaboradores/pedidos" class="admin-action-card">
+      <div class="admin-action-card__icon"><i data-lucide="package"></i></div>
+      <div class="admin-action-card__body">
+        <div class="admin-action-card__title">Pedidos</div>
+        <div class="admin-action-card__desc">Resgates realizados</div>
+      </div>
+    </a>
+  </div>
+{% endblock %}

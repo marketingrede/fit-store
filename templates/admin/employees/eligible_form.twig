@@ -1,0 +1,61 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}{{ employee ? 'Editar' : 'Novo' }} Elegível | Admin {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>{{ employee ? 'Editar Elegível' : 'Novo Elegível' }}</h1>
+    <a href="/admin/colaboradores/elegiveis" class="btn-admin secondary">Voltar</a>
+  </div>
+
+  {% if error %}
+    <div class="admin-alert admin-alert--error">{{ error }}</div>
+  {% endif %}
+
+  <div class="admin-form-card">
+    <form method="post" action="{{ employee ? '/admin/colaboradores/elegiveis/' ~ employee.id : '/admin/colaboradores/elegiveis' }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="employee_id">Matrícula *</label>
+          <input type="text" id="employee_id" name="employee_id" value="{{ employee.employee_id ?? '' }}" required {{ employee ? 'readonly' : '' }}>
+        </div>
+        <div class="field">
+          <label for="full_name">Nome completo *</label>
+          <input type="text" id="full_name" name="full_name" value="{{ employee.full_name ?? '' }}" required>
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" value="{{ employee.email ?? '' }}">
+        </div>
+        <div class="field">
+          <label for="department">Departamento</label>
+          <input type="text" id="department" name="department" value="{{ employee.department ?? '' }}">
+        </div>
+        <div class="field">
+          <label for="initial_balance_fitc">Saldo inicial (FITC)</label>
+          <input type="number" id="initial_balance_fitc" name="initial_balance_fitc" value="{{ employee.initial_balance_fitc ?? 0 }}" min="0">
+        </div>
+        {% if employee %}
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="active" {{ employee.status == 'active' ? 'selected' : '' }}>Ativo</option>
+              <option value="suspended" {{ employee.status == 'suspended' ? 'selected' : '' }}>Suspenso</option>
+              <option value="revoked" {{ employee.status == 'revoked' ? 'selected' : '' }}>Revogado</option>
+            </select>
+          </div>
+        {% endif %}
+        <div class="field field--full">
+          <label for="notes">Observações</label>
+          <textarea id="notes" name="notes" rows="3">{{ employee.notes ?? '' }}</textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-admin">{{ employee ? 'Salvar alterações' : 'Criar elegível' }}</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

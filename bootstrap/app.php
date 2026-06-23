@@ -142,6 +142,14 @@ $container->set(App\Controllers\Admin\AccountController::class, fn ($c) => new A
     $c->get(Twig::class),
     $c->get(Database::class),
 ));
+$container->set(App\Controllers\Admin\EmployeeManagementController::class, fn ($c) => new App\Controllers\Admin\EmployeeManagementController(
+    $c->get(Twig::class),
+    $c->get(App\Repositories\EmployeeEligibilityRepository::class),
+    $c->get(App\Repositories\EmployeeRepository::class),
+    $c->get(App\Repositories\FitcWalletRepository::class),
+    $c->get(App\Repositories\FitcLedgerRepository::class),
+    $c->get(App\Repositories\TradeOrderRepository::class),
+));
 
 $container->set(App\Controllers\EmployeeAuthController::class, fn ($c) => new App\Controllers\EmployeeAuthController(
     $c->get(Twig::class),

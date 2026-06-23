@@ -1,0 +1,63 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Elegíveis | Admin {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>Colaboradores Elegíveis</h1>
+    <a href="/admin/colaboradores/elegiveis/novo" class="btn-admin">
+      <i data-lucide="plus"></i> Novo elegível
+    </a>
+  </div>
+
+  {% if error %}
+    <div class="admin-alert admin-alert--error">{{ error }}</div>
+  {% endif %}
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Matrícula</th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Departamento</th>
+          <th>Saldo Inicial</th>
+          <th>Status</th>
+          <th>Cadastrado</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+          <tr>
+            <td><strong>{{ emp.employee_id }}</strong></td>
+            <td>{{ emp.full_name }}</td>
+            <td>{{ emp.email ?? '—' }}</td>
+            <td>{{ emp.department ?? '—' }}</td>
+            <td>{{ emp.initial_balance_fitc }} FITC</td>
+            <td>
+              {% if emp.status == 'active' %}
+                <span class="admin-badge admin-badge--success">Ativo</span>
+              {% elseif emp.status == 'suspended' %}
+                <span class="admin-badge admin-badge--warning">Suspenso</span>
+              {% else %}
+                <span class="admin-badge admin-badge--danger">Revogado</span>
+              {% endif %}
+            </td>
+            <td>{{ emp.registered_at ? 'Sim' : 'Não' }}</td>
+            <td>
+              <a href="/admin/colaboradores/elegiveis/{{ emp.id }}/editar" class="btn-admin small secondary">Editar</a>
+              <form method="post" action="/admin/colaboradores/elegiveis/{{ emp.id }}/excluir" style="display:inline" onsubmit="return confirm('Excluir este registro?')">
+                <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-admin small danger">Excluir</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="8" class="admin-table-empty">Nenhum colaborador elegível cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

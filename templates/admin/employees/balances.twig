@@ -1,0 +1,81 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Saldos Fitcoin | Admin {{ app_name }}{% endblock %}
+
+{% block admin_content %}
+  <div class="admin-page-header">
+    <h1>Saldos Fitcoin</h1>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Matrícula</th>
+          <th>Nome</th>
+          <th style="text-align:right">Saldo</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+          <tr>
+            <td><strong>{{ emp.employee_id }}</strong></td>
+            <td>{{ emp.full_name }}</td>
+            <td style="text-align:right;font-weight:600;font-size:1.125rem">{{ wallets[emp.id] ?? 0 }} FITC</td>
+            <td>
+              <button type="button" class="btn-admin small" onclick="openAdjustModal({{ emp.id }}, '{{ emp.full_name|e('js') }}', {{ wallets[emp.id] ?? 0 }})">Ajustar saldo</button>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="admin-table-empty">Nenhum colaborador cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="admin-modal-overlay" id="adjustModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:1rem;padding:2rem;max-width:400px;width:90%">
+      <h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem">Ajustar Saldo</h2>
+      <p style="font-size:.875rem;color:var(--grey-600);margin-bottom:1rem">
+        Colaborador: <strong id="adjustName"></strong><br>
+        Saldo atual: <strong id="adjustCurrent"></strong> FITC
+      </p>
+      <form method="post" action="/admin/colaboradores/saldos/ajustar" id="adjustForm">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="employee_id" id="adjustEmployeeId">
+        <div class="field">
+          <label for="adjustType">Tipo</label>
+          <select id="adjustType" name="type">
+            <option value="credit">Crédito (adicionar)</option>
+            <option value="debit">Débito (remover)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="adjustAmount">Valor (FITC)</label>
+          <input type="number" id="adjustAmount" name="amount" min="1" required value="100">
+        </div>
+        <div class="field">
+          <label for="adjustDescription">Descrição</label>
+          <input type="text" id="adjustDescription" name="description" placeholder="Opcional">
+        </div>
+        <div style="display:flex;gap:.75rem;margin-top:1rem">
+          <button type="submit" class="btn-admin">Confirmar</button>
+          <button type="button" class="btn-admin secondary" onclick="closeAdjustModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openAdjustModal(id, name, balance) {
+      document.getElementById('adjustEmployeeId').value = id;
+      document.getElementById('adjustName').textContent = name;
+      document.getElementById('adjustCurrent').textContent = balance;
+      document.getElementById('adjustModal').style.display = 'flex';
+    }
+    function closeAdjustModal() {
+      document.getElementById('adjustModal').style.display = 'none';
+    }
+  </script>
+{% endblock %}
