@@ -4,7 +4,13 @@
 
 {% block admin_content %}
   <div class="admin-page-header">
-    <h1>Pedidos de Resgate</h1>
+    <div>
+      <h1 class="admin-page-header__title">Pedidos de Resgate</h1>
+      <p class="admin-page-header__subtitle">Resgates realizados pelos colaboradores</p>
+    </div>
+    <div class="admin-page-header__actions">
+      <a href="/admin/colaboradores" class="btn-admin secondary"><i data-lucide="arrow-left"></i> Voltar</a>
+    </div>
   </div>
 
   <div class="admin-table-wrap">
@@ -23,14 +29,13 @@
       <tbody>
         {% for order in orders %}
           <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.created_at }}</td>
+            <td><strong>{{ order.id }}</strong></td>
+            <td class="admin-table__nowrap">{{ order.created_at }}</td>
             <td>
-              <strong>{{ employee_names[order.employee_id] ?? 'Desconhecido' }}</strong>
-              <span style="font-size:.75rem;color:var(--grey-400)"> ({{ order.employee_id }})</span>
+              <a href="/admin/colaboradores/contas/{{ order.employee_id }}" class="admin-table__link">{{ employee_names[order.employee_id] ?? 'Desconhecido' }}</a>
             </td>
             <td>{{ order.product_name }}</td>
-            <td style="text-align:right;font-weight:600">-{{ order.product_price_fitc }}</td>
+            <td style="text-align:right;font-weight:650;color:#b91c1c">-{{ order.product_price_fitc }}</td>
             <td>
               {% if order.status == 'confirmed' %}
                 <span class="admin-badge admin-badge--success">Confirmado</span>
@@ -45,7 +50,7 @@
             <td>
               <form method="post" action="/admin/colaboradores/pedidos/{{ order.id }}/status" style="display:inline">
                 <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
-                <select name="status" onchange="this.form.submit()" style="font-size:.75rem;padding:.25rem">
+                <select name="status" onchange="this.form.submit()" style="padding:6px 10px;border:1px solid var(--admin-border);border-radius:var(--radius-md);background:#fff;font:inherit;font-size:.78rem;font-weight:600">
                   <option value="confirmed" {{ order.status == 'confirmed' ? 'selected' : '' }}>Confirmado</option>
                   <option value="fulfilled" {{ order.status == 'fulfilled' ? 'selected' : '' }}>Entregue</option>
                   <option value="cancelled" {{ order.status == 'cancelled' ? 'selected' : '' }}>Cancelado</option>
@@ -54,7 +59,7 @@
             </td>
           </tr>
         {% else %}
-          <tr><td colspan="7" class="admin-table-empty">Nenhum pedido registrado.</td></tr>
+          <tr><td colspan="7" class="admin-table__empty">Nenhum pedido registrado.</td></tr>
         {% endfor %}
       </tbody>
     </table>

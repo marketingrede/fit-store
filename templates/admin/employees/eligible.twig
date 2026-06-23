@@ -4,10 +4,14 @@
 
 {% block admin_content %}
   <div class="admin-page-header">
-    <h1>Colaboradores Elegíveis</h1>
-    <a href="/admin/colaboradores/elegiveis/novo" class="btn-admin">
-      <i data-lucide="plus"></i> Novo elegível
-    </a>
+    <div>
+      <h1 class="admin-page-header__title">Colaboradores Elegíveis</h1>
+      <p class="admin-page-header__subtitle">Whitelist de colaboradores autorizados a se cadastrar</p>
+    </div>
+    <div class="admin-page-header__actions">
+      <a href="/admin/colaboradores" class="btn-admin secondary"><i data-lucide="arrow-left"></i> Voltar</a>
+      <a href="/admin/colaboradores/elegiveis/novo" class="btn-admin"><i data-lucide="plus"></i> Novo elegível</a>
+    </div>
   </div>
 
   {% if error %}
@@ -24,7 +28,7 @@
           <th>Departamento</th>
           <th>Saldo Inicial</th>
           <th>Status</th>
-          <th>Cadastrado</th>
+          <th>Conta</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -33,9 +37,9 @@
           <tr>
             <td><strong>{{ emp.employee_id }}</strong></td>
             <td>{{ emp.full_name }}</td>
-            <td>{{ emp.email ?? '—' }}</td>
-            <td>{{ emp.department ?? '—' }}</td>
-            <td>{{ emp.initial_balance_fitc }} FITC</td>
+            <td class="admin-table__muted">{{ emp.email ?? '—' }}</td>
+            <td class="admin-table__muted">{{ emp.department ?? '—' }}</td>
+            <td><strong>{{ emp.initial_balance_fitc }}</strong> FITC</td>
             <td>
               {% if emp.status == 'active' %}
                 <span class="admin-badge admin-badge--success">Ativo</span>
@@ -45,17 +49,27 @@
                 <span class="admin-badge admin-badge--danger">Revogado</span>
               {% endif %}
             </td>
-            <td>{{ emp.registered_at ? 'Sim' : 'Não' }}</td>
             <td>
-              <a href="/admin/colaboradores/elegiveis/{{ emp.id }}/editar" class="btn-admin small secondary">Editar</a>
+              {% if emp.registered_at %}
+                <span class="admin-badge admin-badge--info">Cadastrado</span>
+              {% else %}
+                <span class="admin-table__muted">Pendente</span>
+              {% endif %}
+            </td>
+            <td class="admin-table__nowrap">
+              <a href="/admin/colaboradores/elegiveis/{{ emp.id }}/editar" class="btn-admin secondary" style="padding:6px 10px;font-size:.78rem">
+                <i data-lucide="pencil" style="width:13px;height:13px"></i> Editar
+              </a>
               <form method="post" action="/admin/colaboradores/elegiveis/{{ emp.id }}/excluir" style="display:inline" onsubmit="return confirm('Excluir este registro?')">
                 <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
-                <button type="submit" class="btn-admin small danger">Excluir</button>
+                <button type="submit" class="btn-admin danger" style="padding:6px 10px;font-size:.78rem">
+                  <i data-lucide="trash-2" style="width:13px;height:13px"></i>
+                </button>
               </form>
             </td>
           </tr>
         {% else %}
-          <tr><td colspan="8" class="admin-table-empty">Nenhum colaborador elegível cadastrado.</td></tr>
+          <tr><td colspan="8" class="admin-table__empty">Nenhum colaborador elegível cadastrado.</td></tr>
         {% endfor %}
       </tbody>
     </table>

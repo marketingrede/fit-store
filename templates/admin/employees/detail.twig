@@ -4,111 +4,126 @@
 
 {% block admin_content %}
   <div class="admin-page-header">
-    <h1>{{ employee.full_name }}</h1>
-    <a href="/admin/colaboradores/contas" class="btn-admin secondary">Voltar</a>
+    <div>
+      <h1 class="admin-page-header__title">{{ employee.full_name }}</h1>
+      <p class="admin-page-header__subtitle">Mat. {{ employee.employee_id }} · {{ employee.email }}</p>
+    </div>
+    <div class="admin-page-header__actions">
+      <a href="/admin/colaboradores/contas" class="btn-admin secondary"><i data-lucide="arrow-left"></i> Voltar</a>
+    </div>
   </div>
 
   <div class="admin-stats-grid">
     <div class="admin-stat-card">
-      <div class="admin-stat-card__icon"><i data-lucide="hash"></i></div>
+      <div class="admin-stat-card__icon admin-stat-card__icon--teal"><i data-lucide="hash"></i></div>
       <div class="admin-stat-card__body">
         <div class="admin-stat-card__label">Matrícula</div>
         <div class="admin-stat-card__value">{{ employee.employee_id }}</div>
       </div>
     </div>
     <div class="admin-stat-card">
-      <div class="admin-stat-card__icon"><i data-lucide="wallet"></i></div>
+      <div class="admin-stat-card__icon admin-stat-card__icon--blue"><i data-lucide="wallet"></i></div>
       <div class="admin-stat-card__body">
-        <div class="admin-stat-card__label">Saldo</div>
-        <div class="admin-stat-card__value">{{ balance }} FITC</div>
+        <div class="admin-stat-card__label">Saldo Atual</div>
+        <div class="admin-stat-card__value">{{ balance }} <span style="font-size:.7em;font-weight:500;color:var(--admin-muted)">FITC</span></div>
       </div>
     </div>
     <div class="admin-stat-card">
-      <div class="admin-stat-card__icon"><i data-lucide="mail"></i></div>
+      <div class="admin-stat-card__icon"><i data-lucide="clock"></i></div>
       <div class="admin-stat-card__body">
-        <div class="admin-stat-card__label">E-mail</div>
-        <div class="admin-stat-card__value" style="font-size:.875rem">{{ employee.email }}</div>
+        <div class="admin-stat-card__label">Último Login</div>
+        <div class="admin-stat-card__value" style="font-size:.88rem">{{ employee.last_login_at ?? 'Nunca' }}</div>
       </div>
     </div>
   </div>
 
-  <h2 style="margin:1.5rem 0 1rem;font-size:1rem;font-weight:600">Últimas movimentações</h2>
-  {% if ledger|length > 0 %}
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Tipo</th>
-            <th>Descrição</th>
-            <th style="text-align:right">Valor</th>
-            <th style="text-align:right">Saldo</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for entry in ledger %}
+  <div style="margin-top:24px">
+    <h2 style="font-size:.92rem;font-weight:650;color:var(--admin-text);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <i data-lucide="arrow-left-right" style="width:16px;height:16px;color:var(--brand-teal)"></i>
+      Últimas movimentações
+    </h2>
+    {% if ledger|length > 0 %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
             <tr>
-              <td>{{ entry.created_at }}</td>
-              <td>
-                {% if entry.type == 'credit' %}
-                  <span class="admin-badge admin-badge--success">Crédito</span>
-                {% elseif entry.type == 'debit' %}
-                  <span class="admin-badge admin-badge--danger">Débito</span>
-                {% else %}
-                  <span class="admin-badge admin-badge--info">Estorno</span>
-                {% endif %}
-              </td>
-              <td>{{ entry.description ?? '—' }}</td>
-              <td style="text-align:right;font-weight:600">
-                {% if entry.type == 'credit' %}+{% else %}-{% endif %}{{ entry.amount_fitc }} FITC
-              </td>
-              <td style="text-align:right">{{ entry.balance_after_fitc }} FITC</td>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Descrição</th>
+              <th style="text-align:right">Valor</th>
+              <th style="text-align:right">Saldo</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <p style="color:var(--grey-500)">Nenhuma movimentação registrada.</p>
-  {% endif %}
+          </thead>
+          <tbody>
+            {% for entry in ledger %}
+              <tr>
+                <td class="admin-table__nowrap">{{ entry.created_at }}</td>
+                <td>
+                  {% if entry.type == 'credit' %}
+                    <span class="admin-badge admin-badge--success">Crédito</span>
+                  {% elseif entry.type == 'debit' %}
+                    <span class="admin-badge admin-badge--danger">Débito</span>
+                  {% else %}
+                    <span class="admin-badge admin-badge--info">Estorno</span>
+                  {% endif %}
+                </td>
+                <td>{{ entry.description ?? '—' }}</td>
+                <td style="text-align:right;font-weight:650;{% if entry.type == 'credit' %}color:var(--brand-teal-dark){% else %}color:#b91c1c{% endif %}">
+                  {% if entry.type == 'credit' %}+{% else %}-{% endif %}{{ entry.amount_fitc }} FITC
+                </td>
+                <td style="text-align:right">{{ entry.balance_after_fitc }} FITC</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="admin-card--empty" style="padding:24px">Nenhuma movimentação registrada.</div>
+    {% endif %}
+  </div>
 
-  <h2 style="margin:1.5rem 0 1rem;font-size:1rem;font-weight:600">Resgates</h2>
-  {% if orders|length > 0 %}
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Data</th>
-            <th>Produto</th>
-            <th style="text-align:right">FITC</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for order in orders %}
+  <div style="margin-top:24px">
+    <h2 style="font-size:.92rem;font-weight:650;color:var(--admin-text);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <i data-lucide="package" style="width:16px;height:16px;color:var(--brand-blue)"></i>
+      Resgates realizados
+    </h2>
+    {% if orders|length > 0 %}
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
             <tr>
-              <td>{{ order.id }}</td>
-              <td>{{ order.created_at }}</td>
-              <td>{{ order.product_name }}</td>
-              <td style="text-align:right;font-weight:600">-{{ order.product_price_fitc }}</td>
-              <td>
-                {% if order.status == 'confirmed' %}
-                  <span class="admin-badge admin-badge--success">Confirmado</span>
-                {% elseif order.status == 'fulfilled' %}
-                  <span class="admin-badge admin-badge--info">Entregue</span>
-                {% elseif order.status == 'cancelled' %}
-                  <span class="admin-badge admin-badge--danger">Cancelado</span>
-                {% else %}
-                  <span class="admin-badge">{{ order.status }}</span>
-                {% endif %}
-              </td>
+              <th>#</th>
+              <th>Data</th>
+              <th>Produto</th>
+              <th style="text-align:right">FITC</th>
+              <th>Status</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <p style="color:var(--grey-500)">Nenhum resgate realizado.</p>
-  {% endif %}
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td><strong>{{ order.id }}</strong></td>
+                <td class="admin-table__nowrap">{{ order.created_at }}</td>
+                <td>{{ order.product_name }}</td>
+                <td style="text-align:right;font-weight:650;color:#b91c1c">-{{ order.product_price_fitc }}</td>
+                <td>
+                  {% if order.status == 'confirmed' %}
+                    <span class="admin-badge admin-badge--success">Confirmado</span>
+                  {% elseif order.status == 'fulfilled' %}
+                    <span class="admin-badge admin-badge--info">Entregue</span>
+                  {% elseif order.status == 'cancelled' %}
+                    <span class="admin-badge admin-badge--danger">Cancelado</span>
+                  {% else %}
+                    <span class="admin-badge">{{ order.status }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="admin-card--empty" style="padding:24px">Nenhum resgate realizado.</div>
+    {% endif %}
+  </div>
 {% endblock %}

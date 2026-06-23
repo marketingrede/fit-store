@@ -4,8 +4,13 @@
 
 {% block admin_content %}
   <div class="admin-page-header">
-    <h1>{{ employee ? 'Editar Elegível' : 'Novo Elegível' }}</h1>
-    <a href="/admin/colaboradores/elegiveis" class="btn-admin secondary">Voltar</a>
+    <div>
+      <h1 class="admin-page-header__title">{{ employee ? 'Editar Elegível' : 'Novo Elegível' }}</h1>
+      <p class="admin-page-header__subtitle">{{ employee ? 'Atualize os dados do colaborador elegível' : 'Adicione um novo colaborador à whitelist' }}</p>
+    </div>
+    <div class="admin-page-header__actions">
+      <a href="/admin/colaboradores/elegiveis" class="btn-admin secondary"><i data-lucide="arrow-left"></i> Voltar</a>
+    </div>
   </div>
 
   {% if error %}
@@ -19,7 +24,7 @@
       <div class="form-grid">
         <div class="field">
           <label for="employee_id">Matrícula *</label>
-          <input type="text" id="employee_id" name="employee_id" value="{{ employee.employee_id ?? '' }}" required {{ employee ? 'readonly' : '' }}>
+          <input type="text" id="employee_id" name="employee_id" value="{{ employee.employee_id ?? '' }}" required {{ employee ? 'readonly style="background:var(--brand-surface-alt);cursor:not-allowed"' : '' }}>
         </div>
         <div class="field">
           <label for="full_name">Nome completo *</label>
@@ -54,7 +59,8 @@
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn-admin">{{ employee ? 'Salvar alterações' : 'Criar elegível' }}</button>
+        <button type="submit" class="btn-admin"><i data-lucide="save"></i> {{ employee ? 'Salvar alterações' : 'Criar elegível' }}</button>
+        <a href="/admin/colaboradores/elegiveis" class="btn-admin secondary">Cancelar</a>
       </div>
     </form>
   </div>
