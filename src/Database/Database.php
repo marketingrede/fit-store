@@ -87,6 +87,7 @@ final class Database
     }
 
     $this->seedAdminsIfMissing();
+    $this->seedEmployeesIfMissing();
   }
 
   public function seedIfEmpty(): void
@@ -150,6 +151,70 @@ final class Database
       $check->execute([$email]);
       if ((int) $check->fetchColumn() === 0) {
         $insert->execute([$email, $hash, 'admin']);
+      }
+    }
+  }
+
+  private function seedEmployeesIfMissing(): void
+  {
+    $employees = require $this->root . '/database/seeds/employees.php';
+    $password = $_ENV['ADMIN_PASSWORD'] ?? 'altere-esta-senha';
+    $hash = password_hash($password, PASSWORD_BCRYPT);
+
+    $checkEligibility = $this->pdo->prepare('SELECT COUNT(*) FROM employee_eligibility WHERE employee_id = ?');
+    $insertEligibility = $this->pdo->prepare(
+      'INSERT INTO employee_eligibility (employee_id, full_name, email, department, status, initial_balance_fitc)
+       VALUES (?, ?, ?, ?, \'active\', ?)'
+    );
+
+    $checkEmployee = $this->pdo->prepare('SELECT COUNT(*) FROM employees WHERE employee_id = ?');
+    $insertEmployee = $this->pdo->prepare(
+      'INSERT INTO employees (eligibility_id, employee_id, email, password_hash, full_name)
+       VALUES (?, ?, ?, ?, ?)'
+    );
+
+    $insertWallet = $this->pdo->prepare(
+      'INSERT INTO fitc_wallets (employee_id, balance_fitc) VALUES (?, ?)'
+    );
+
+    $insertLedger = $this->pdo->prepare(
+      'INSERT INTO fitc_ledger (employee_id, type, amount_fitc, balance_after_fitc, reference_type, description)
+       VALUES (?, \'credit\', ?, ?, \'registration\', ?)'
+    );
+
+    foreach ($employees as $emp) {
+      $checkEligibility->execute([$emp['employee_id']]);
+      if ((int) $checkEligibility->fetchColumn() === 0) {
+        $insertEligibility->execute([
+          $emp['employee_id'],
+          $emp['full_name'],
+          $emp['email'],
+          $emp['department'],
+          $emp['initial_balance_fitc'],
+        ]);
+
+        $eligibilityId = (int) $this->pdo->lastInsertId();
+
+        $insertEmployee->execute([
+          $eligibilityId,
+          $emp['employee_id'],
+          $emp['email'],
+          $hash,
+          $emp['full_name'],
+        ]);
+
+        $employeeDbId = (int) $this->pdo->lastInsertId();
+
+        $insertWallet->execute([$employeeDbId, $emp['initial_balance_fitc']]);
+
+        if ($emp['initial_balance_fitc'] > 0) {
+          $insertLedger->execute([
+            $employeeDbId,
+            $emp['initial_balance_fitc'],
+            $emp['initial_balance_fitc'],
+            'Saldo inicial na ativação da conta',
+          ]);
+        }
       }
     }
   }

@@ -51,9 +51,21 @@ $container->set(App\Repositories\AnnouncementRepository::class, fn ($c) => new A
 $container->set(App\Repositories\ProductVariationRepository::class, fn ($c) => new App\Repositories\ProductVariationRepository($c->get(Database::class)));
 $container->set(App\Repositories\TradeRequestRepository::class, fn ($c) => new App\Repositories\TradeRequestRepository($c->get(Database::class)));
 $container->set(App\Repositories\AnalyticsRepository::class, fn ($c) => new App\Repositories\AnalyticsRepository($c->get(Database::class)));
+$container->set(App\Repositories\EmployeeEligibilityRepository::class, fn ($c) => new App\Repositories\EmployeeEligibilityRepository($c->get(Database::class)));
+$container->set(App\Repositories\EmployeeRepository::class, fn ($c) => new App\Repositories\EmployeeRepository($c->get(Database::class)));
+$container->set(App\Repositories\FitcWalletRepository::class, fn ($c) => new App\Repositories\FitcWalletRepository($c->get(Database::class)));
+$container->set(App\Repositories\FitcLedgerRepository::class, fn ($c) => new App\Repositories\FitcLedgerRepository($c->get(Database::class)));
+$container->set(App\Repositories\TradeOrderRepository::class, fn ($c) => new App\Repositories\TradeOrderRepository($c->get(Database::class)));
 $container->set(App\Services\ReportExporter::class, fn () => new App\Services\ReportExporter());
 $container->set(App\Services\UploadService::class, fn () => new App\Services\UploadService($root));
 $container->set(App\Services\HtmlSanitizer::class, fn () => new App\Services\HtmlSanitizer());
+$container->set(App\Services\TradeService::class, fn ($c) => new App\Services\TradeService(
+    $c->get(App\Repositories\ProductRepository::class),
+    $c->get(App\Repositories\ProductVariationRepository::class),
+    $c->get(App\Repositories\FitcWalletRepository::class),
+    $c->get(App\Repositories\FitcLedgerRepository::class),
+    $c->get(App\Repositories\TradeOrderRepository::class),
+));
 
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware($_ENV['SESSION_SECRET'] ?? 'dev-secret-change-me'));
@@ -131,6 +143,28 @@ $container->set(App\Controllers\Admin\AccountController::class, fn ($c) => new A
     $c->get(Database::class),
 ));
 
+$container->set(App\Controllers\EmployeeAuthController::class, fn ($c) => new App\Controllers\EmployeeAuthController(
+    $c->get(Twig::class),
+    $c->get(App\Repositories\EmployeeEligibilityRepository::class),
+    $c->get(App\Repositories\EmployeeRepository::class),
+    $c->get(App\Repositories\FitcWalletRepository::class),
+    $c->get(App\Repositories\FitcLedgerRepository::class),
+));
+$container->set(App\Controllers\EmployeeController::class, fn ($c) => new App\Controllers\EmployeeController(
+    $c->get(Twig::class),
+    $c->get(App\Repositories\EmployeeRepository::class),
+    $c->get(App\Repositories\FitcWalletRepository::class),
+    $c->get(App\Repositories\FitcLedgerRepository::class),
+    $c->get(App\Repositories\TradeOrderRepository::class),
+));
+$container->set(App\Controllers\EmployeeTradeController::class, fn ($c) => new App\Controllers\EmployeeTradeController(
+    $c->get(Twig::class),
+    $c->get(App\Repositories\ProductRepository::class),
+    $c->get(App\Repositories\ProductVariationRepository::class),
+    $c->get(App\Repositories\FitcWalletRepository::class),
+    $c->get(App\Services\TradeService::class),
+));
+
 $database = $container->get(Database::class);
 $database->migrate();
 $database->seedIfEmpty();
@@ -141,6 +175,7 @@ $twig->getEnvironment()->addGlobal('catalog_tags', $catalogConfig->activeTags())
 
 (require $root . '/routes/web.php')($app);
 (require $root . '/routes/admin.php')($app);
+(require $root . '/routes/employee.php')($app);
 
 $displayErrors = ($_ENV['APP_DEBUG'] ?? 'false') === 'true';
 $app->addErrorMiddleware($displayErrors, $displayErrors, $displayErrors);

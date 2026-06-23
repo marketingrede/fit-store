@@ -29,6 +29,8 @@ export function initTrade(product, options = {}) {
   destroyTrade();
 
   const getSelections = options.getSelections || (() => ({}));
+  const isEmployee = options.isEmployee || false;
+  const employeeBalance = options.employeeBalance || 0;
 
   const openBtn = options.openBtnSelector
     ? document.querySelector(options.openBtnSelector)
@@ -62,11 +64,29 @@ export function initTrade(product, options = {}) {
     const variationText = summary.length ? ` · ${summary.join(' · ')}` : '';
 
     if (!subtitleEl) return;
-    subtitleEl.textContent = `Produto: ${product.name}${variationText} (${presentation.price_fitc} FITC)`;
+
+    if (isEmployee) {
+      subtitleEl.textContent = `Produto: ${product.name}${variationText} (${presentation.price_fitc} FITC)`;
+    } else {
+      subtitleEl.textContent = `Produto: ${product.name}${variationText} (${presentation.price_fitc} FITC)`;
+    }
+
     overlay?.classList.add('is-open');
     overlay?.setAttribute('aria-hidden', 'false');
     if (statusEl) statusEl.textContent = '';
-    document.getElementById('tradeName')?.focus();
+
+    if (isEmployee) {
+      const nameField = document.getElementById('tradeNameField');
+      const emailField = document.getElementById('tradeEmailField');
+      if (nameField) nameField.style.display = 'none';
+      if (emailField) emailField.style.display = 'none';
+    }
+
+    if (isEmployee) {
+      document.getElementById('tradeBalanceInfo')?.focus();
+    } else {
+      document.getElementById('tradeName')?.focus();
+    }
   }
 
   function closeModal() {
@@ -88,12 +108,19 @@ export function initTrade(product, options = {}) {
   addHandler(form, 'submit', (e) => {
     e.preventDefault();
 
-    const name = String(document.getElementById('tradeName')?.value || '').trim();
-    const email = String(document.getElementById('tradeEmail')?.value || '').trim();
+    let name, email;
 
-    if (!name || !email) {
-      if (statusEl) statusEl.textContent = 'Preencha nome e e-mail.';
-      return;
+    if (isEmployee) {
+      name = document.getElementById('employeeName')?.textContent || '';
+      email = '';
+    } else {
+      name = String(document.getElementById('tradeName')?.value || '').trim();
+      email = String(document.getElementById('tradeEmail')?.value || '').trim();
+
+      if (!name || !email) {
+        if (statusEl) statusEl.textContent = 'Preencha nome e e-mail.';
+        return;
+      }
     }
 
     const selections = getSelections();
@@ -106,6 +133,11 @@ export function initTrade(product, options = {}) {
     const presentation = currentPresentation();
     const summary = formatSelectionSummary(product, selections);
 
+    if (isEmployee && presentation.price_fitc > employeeBalance) {
+      if (statusEl) statusEl.textContent = 'Saldo insuficiente para este resgate.';
+      return;
+    }
+
     pendingOrder = {
       name,
       email,
@@ -114,11 +146,17 @@ export function initTrade(product, options = {}) {
       productPriceFitc: presentation.price_fitc,
       productSelection: selections,
       selectionSummary: summary,
+      isEmployee,
     };
 
     if (orderReviewEl) {
       const variationRows = summary.length
         ? summary.map((line) => `<div><span class="label">Variação:</span> ${line}</div>`).join('')
+        : '';
+
+      const balanceRow = isEmployee
+        ? `<div><span class="label">Saldo atual:</span> ${employeeBalance} FITC</div>
+           <div><span class="label">Saldo após resgate:</span> ${employeeBalance - presentation.price_fitc} FITC</div>`
         : '';
 
       orderReviewEl.innerHTML = `
@@ -127,11 +165,10 @@ export function initTrade(product, options = {}) {
           <div class="order-review-list">
             <div><span class="label">Produto:</span> ${pendingOrder.productName} (${pendingOrder.productPriceFitc} FITC)</div>
             ${variationRows}
-            <div><span class="label">Nome:</span> ${pendingOrder.name}</div>
-            <div><span class="label">E-mail:</span> ${pendingOrder.email}</div>
+            ${balanceRow}
           </div>
           <div class="order-review-actions">
-            <button class="confirm-btn" id="confirmSendBtn" type="button">Confirmar e enviar</button>
+            <button class="confirm-btn" id="confirmSendBtn" type="button">Confirmar resgate</button>
             <div class="order-status-text" id="orderStatusText"></div>
           </div>
         </div>
@@ -150,29 +187,44 @@ export function initTrade(product, options = {}) {
     const confirmBtn = document.getElementById('confirmSendBtn');
     if (!statusText || !confirmBtn) return;
 
-    statusText.textContent = 'Enviando...';
+    statusText.textContent = 'Processando resgate...';
     confirmBtn.disabled = true;
 
     try {
       const fd = new FormData();
       fd.append('_csrf', csrf);
-      fd.append('name', pendingOrder.name);
-      fd.append('email', pendingOrder.email);
-      fd.append('productId', String(pendingOrder.productId));
-      fd.append('productName', pendingOrder.productName);
-      fd.append('productPriceFitc', String(pendingOrder.productPriceFitc));
-      fd.append('productSelection', JSON.stringify(pendingOrder.productSelection || {}));
 
-      const res = await fetch('/api/troca-fitcoin', { method: 'POST', body: fd });
+      let endpoint;
+
+      if (pendingOrder.isEmployee) {
+        endpoint = '/api/colaborador/troca';
+        fd.append('product_id', String(pendingOrder.productId));
+        fd.append('product_selection', JSON.stringify(pendingOrder.productSelection || {}));
+      } else {
+        endpoint = '/api/troca-fitcoin';
+        fd.append('name', pendingOrder.name);
+        fd.append('email', pendingOrder.email);
+        fd.append('productId', String(pendingOrder.productId));
+        fd.append('productName', pendingOrder.productName);
+        fd.append('productPriceFitc', String(pendingOrder.productPriceFitc));
+        fd.append('productSelection', JSON.stringify(pendingOrder.productSelection || {}));
+      }
+
+      const res = await fetch(endpoint, { method: 'POST', body: fd });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data?.ok) {
-        statusText.textContent = data?.error || 'Não foi possível enviar. Tente novamente.';
+        statusText.textContent = data?.error || 'Não foi possível processar. Tente novamente.';
         confirmBtn.disabled = false;
         return;
       }
 
-      statusText.textContent = 'Pedido enviado com sucesso!';
+      if (pendingOrder.isEmployee && data.new_balance !== undefined) {
+        statusText.innerHTML = `Resgate realizado com sucesso!<br>Novo saldo: <strong>${data.new_balance} FITC</strong>`;
+      } else {
+        statusText.textContent = 'Pedido enviado com sucesso!';
+      }
+
       pendingOrder = null;
     } catch {
       statusText.textContent = 'Erro de conexão. Tente novamente.';

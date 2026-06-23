@@ -1,0 +1,78 @@
+{% extends 'layouts/app.twig' %}
+
+{% block title %}Login | Colaborador {{ app_name }}{% endblock %}
+
+{% block styles %}
+  {% set adminCss = vite_css('admin') %}
+  {% if adminCss %}<link rel="stylesheet" href="{{ adminCss }}">{% endif %}
+  <style>
+    .emp-login { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--grey-50,#f8fafc); padding:2rem; }
+    .emp-login__panel { background:#fff; border-radius:1rem; box-shadow:0 4px 24px rgba(0,0,0,.08); padding:2.5rem; width:100%; max-width:420px; text-align:center; }
+    .emp-login__logo { width:120px; height:auto; margin-bottom:1.5rem; }
+    .emp-login__eyebrow { font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--teal,#2dbda8); font-weight:600; margin-bottom:.25rem; }
+    .emp-login__title { font-size:1.5rem; font-weight:700; color:var(--grey-900,#0f172a); margin-bottom:.25rem; }
+    .emp-login__subtitle { font-size:.875rem; color:var(--grey-500,#64748b); margin-bottom:1.5rem; }
+    .emp-login__form { text-align:left; }
+    .emp-login__form .field { margin-bottom:1rem; }
+    .emp-login__form label { display:block; font-size:.8125rem; font-weight:600; color:var(--grey-700,#334155); margin-bottom:.375rem; }
+    .emp-login__form input { width:100%; padding:.625rem .75rem; border:1px solid var(--grey-300,#cbd5e1); border-radius:.5rem; font-size:.875rem; outline:none; transition:border .15s; }
+    .emp-login__form input:focus { border-color:var(--teal,#2dbda8); box-shadow:0 0 0 3px rgba(45,189,168,.15); }
+    .emp-login__submit { width:100%; padding:.75rem; background:var(--teal,#2dbda8); color:#fff; border:none; border-radius:.5rem; font-size:.9375rem; font-weight:600; cursor:pointer; transition:opacity .15s; }
+    .emp-login__submit:hover { opacity:.9; }
+    .emp-alert { padding:.75rem 1rem; border-radius:.5rem; margin-bottom:1rem; font-size:.8125rem; }
+    .emp-alert--error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+    .emp-alert--success { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .emp-login__links { margin-top:1.25rem; font-size:.8125rem; color:var(--grey-500,#64748b); }
+    .emp-login__links a { color:var(--teal,#2dbda8); text-decoration:none; font-weight:500; }
+    .emp-login__links a:hover { text-decoration:underline; }
+    .emp-login__footer { margin-top:1.5rem; font-size:.8125rem; }
+    .emp-login__footer a { color:var(--grey-500,#64748b); text-decoration:none; }
+    .emp-login__footer a:hover { color:var(--teal,#2dbda8); }
+  </style>
+{% endblock %}
+
+{% block vite_script %}{% endblock %}
+
+{% block body %}
+  <main class="emp-login">
+    <div class="emp-login__panel">
+      <header>
+        <img src="/assets/logo.svg" alt="Movimenta+" class="emp-login__logo" width="461" height="181" decoding="async">
+        <p class="emp-login__eyebrow">Área do colaborador</p>
+        <h1 class="emp-login__title">{{ app_name }}</h1>
+        <p class="emp-login__subtitle">Acesse seu saldo Fitcoin e resgate produtos.</p>
+      </header>
+
+      <form method="post" action="/colaborador/login" class="emp-login__form">
+        {% if error %}
+          <div class="emp-alert emp-alert--error">{{ error }}</div>
+        {% endif %}
+
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+        <div class="field">
+          <label for="employee_id">Matrícula</label>
+          <input type="text" id="employee_id" name="employee_id" required autocomplete="username" placeholder="Sua matrícula">
+        </div>
+        <div class="field">
+          <label for="password">Senha</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="emp-login__submit">Entrar</button>
+      </form>
+
+      <div class="emp-login__links">
+        <p>Não tem conta? <a href="/colaborador/cadastro">Cadastre-se aqui</a></p>
+      </div>
+
+      <footer class="emp-login__footer">
+        <a href="/"><i data-lucide="arrow-left"></i> Voltar para a loja</a>
+      </footer>
+    </div>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ vite('admin') }}" defer></script>
+{% endblock %}
