@@ -9,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 final class CatalogFilters
 {
     /**
-     * @return array{search: string, categories: list<string>, valid_categories: list<string>, tags: list<string>, valid_tags: list<string>}
+     * @return array{search: string, categories: list<string>, valid_categories: list<string>, tags: list<string>, valid_tags: list<string>, price_min: int, price_max: int}
      */
     public static function fromRequest(ServerRequestInterface $request, CatalogConfig $catalog): array
     {
@@ -27,12 +27,17 @@ final class CatalogFilters
             fn (string $name) => in_array($name, $validTagNames, true)
         ));
 
+        $priceMin = max(0, (int) ($params['preco_min'] ?? 0));
+        $priceMax = max(0, (int) ($params['preco_max'] ?? 0));
+
         return [
             'search' => $search,
             'categories' => $categories,
             'valid_categories' => $validCategories,
             'tags' => $tags,
             'valid_tags' => $validTags,
+            'price_min' => $priceMin,
+            'price_max' => $priceMax,
         ];
     }
 

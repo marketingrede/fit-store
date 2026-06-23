@@ -185,7 +185,48 @@
         {% endfor %}
       </div>
 
-      {% if activeCategories|length > 0 or activeTags|default([])|length > 0 %}
+      <div class="catalog-sidebar__section">
+        <h2 class="catalog-sidebar__title">Faixa de preço</h2>
+        <div class="price-slider" data-price-slider>
+          <div class="price-slider__labels">
+            <span class="price-slider__value" data-price-min-label>{{ price_min > 0 ? price_min : min_product_price }}</span>
+            <span class="price-slider__separator">até</span>
+            <span class="price-slider__value" data-price-max-label>{{ price_max > 0 ? price_max : max_product_price }}</span>
+            <span class="price-slider__unit">FITC</span>
+          </div>
+          <div class="price-slider__track" data-price-track>
+            <div class="price-slider__range" data-price-range></div>
+            <input type="range" class="price-slider__input price-slider__input--min" data-price-input-min min="{{ min_product_price }}" max="{{ max_product_price }}" value="{{ price_min > 0 ? price_min : min_product_price }}" step="1">
+            <input type="range" class="price-slider__input price-slider__input--max" data-price-input-max min="{{ min_product_price }}" max="{{ max_product_price }}" value="{{ price_max > 0 ? price_max : max_product_price }}" step="1">
+          </div>
+          <div class="price-slider__bounds">
+            <span>{{ min_product_price }}</span>
+            <span>{{ max_product_price }} FITC</span>
+          </div>
+          <a
+            href="#"
+            class="price-slider__apply btn-filter"
+            data-price-apply
+            hx-get="/"
+            hx-target="#spa-outlet"
+            hx-push-url="true"
+            hx-swap="innerHTML"
+          >Aplicar filtro</a>
+          {% if has_price_filter %}
+            <a
+              href="{{ catalog_urls.clear }}"
+              class="price-slider__clear"
+              data-price-clear
+              hx-get="{{ catalog_urls.clear }}"
+              hx-target="#spa-outlet"
+              hx-push-url="true"
+              hx-swap="innerHTML"
+            >Limpar filtro de preço</a>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if activeCategories|length > 0 or activeTags|default([])|length > 0 or has_price_filter %}
         <a
           href="{{ catalog_urls.clear }}"
           class="catalog-sidebar__clear"

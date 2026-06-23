@@ -49,6 +49,8 @@ final class HomeController
         $search = $filters['search'];
         $validCategories = $filters['valid_categories'];
         $validTags = $filters['valid_tags'];
+        $priceMin = $filters['price_min'];
+        $priceMax = $filters['price_max'];
 
         $catalogResult = $this->products->allActiveFilteredPaginated(
             $validCategories ?: null,
@@ -56,6 +58,8 @@ final class HomeController
             1,
             CatalogPageSize::PER_PAGE,
             $validTags ?: null,
+            $priceMin ?: null,
+            $priceMax ?: null,
         );
 
         $products = $this->attachVariations($catalogResult['items']);
@@ -65,8 +69,8 @@ final class HomeController
         $toggleUrls = [];
         $removeUrls = [];
         foreach (array_keys($categoryMap) as $slug) {
-            $toggleUrls[$slug] = CatalogUrl::toggleCategory($search, $validCategories, $slug, $validTags);
-            $removeUrls[$slug] = CatalogUrl::removeCategory($search, $validCategories, $slug, $validTags);
+            $toggleUrls[$slug] = CatalogUrl::toggleCategory($search, $validCategories, $slug, $validTags, $priceMin, $priceMax);
+            $removeUrls[$slug] = CatalogUrl::removeCategory($search, $validCategories, $slug, $validTags, $priceMin, $priceMax);
         }
 
         $toggleTagUrls = [];
@@ -76,9 +80,20 @@ final class HomeController
             if ($name === '') {
                 continue;
             }
-            $toggleTagUrls[$name] = CatalogUrl::toggleTag($search, $validCategories, $validTags, $name);
-            $removeTagUrls[$name] = CatalogUrl::removeTag($search, $validCategories, $validTags, $name);
+            $toggleTagUrls[$name] = CatalogUrl::toggleTag($search, $validCategories, $validTags, $name, $priceMin, $priceMax);
+            $removeTagUrls[$name] = CatalogUrl::removeTag($search, $validCategories, $validTags, $name, $priceMin, $priceMax);
         }
+
+        $allPrices = $this->products->allActive();
+        $minProductPrice = 0;
+        $maxProductPrice = 0;
+        if ($allPrices !== []) {
+            $prices = array_column($allPrices, 'price_fitc');
+            $minProductPrice = min($prices);
+            $maxProductPrice = max($prices);
+        }
+
+        $hasPriceFilter = $priceMin > 0 || $priceMax > 0;
 
         return [
             'products' => $products,
@@ -92,6 +107,11 @@ final class HomeController
             'activeTags' => $validTags,
             'search' => $search,
             'header_search' => $search,
+            'price_min' => $priceMin,
+            'price_max' => $priceMax,
+            'min_product_price' => $minProductPrice,
+            'max_product_price' => $maxProductPrice,
+            'has_price_filter' => $hasPriceFilter,
             'catalog_urls' => [
                 'all' => CatalogUrl::build($search),
                 'clear' => CatalogUrl::build($search, []),

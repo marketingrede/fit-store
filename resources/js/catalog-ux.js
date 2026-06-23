@@ -217,3 +217,83 @@ export function initCatalogUx() {
 }
 
 window.closeFilterSheet = closeFilterSheet;
+
+function initPriceSlider() {
+  const track = document.querySelector('[data-price-track]');
+  const inputMin = document.querySelector('[data-price-input-min]');
+  const inputMax = document.querySelector('[data-price-input-max]');
+  const range = document.querySelector('[data-price-range]');
+  const minLabel = document.querySelector('[data-price-min-label]');
+  const maxLabel = document.querySelector('[data-price-max-label]');
+  const applyBtn = document.querySelector('[data-price-apply]');
+
+  if (!track || !inputMin || !inputMax || !range) return;
+
+  const min = parseInt(inputMin.min, 10);
+  const max = parseInt(inputMin.max, 10);
+
+  function updateRange() {
+    const valMin = parseInt(inputMin.value, 10);
+    const valMax = parseInt(inputMax.value, 10);
+    const percentMin = ((valMin - min) / (max - min)) * 100;
+    const percentMax = ((valMax - min) / (max - min)) * 100;
+
+    range.style.left = percentMin + '%';
+    range.style.width = (percentMax - percentMin) + '%';
+
+    if (minLabel) minLabel.textContent = valMin;
+    if (maxLabel) maxLabel.textContent = valMax;
+  }
+
+  function clampValues() {
+    let valMin = parseInt(inputMin.value, 10);
+    let valMax = parseInt(inputMax.value, 10);
+    if (valMin > valMax - 1) {
+      valMin = valMax - 1;
+      inputMin.value = valMin;
+    }
+    if (valMax < valMin + 1) {
+      valMax = valMin + 1;
+      inputMax.value = valMax;
+    }
+  }
+
+  inputMin.addEventListener('input', () => {
+    clampValues();
+    updateRange();
+  });
+
+  inputMax.addEventListener('input', () => {
+    clampValues();
+    updateRange();
+  });
+
+  if (applyBtn) {
+    applyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const valMin = parseInt(inputMin.value, 10);
+      const valMax = parseInt(inputMax.value, 10);
+      const url = new URL(window.location.href);
+
+      if (valMin > min) {
+        url.searchParams.set('preco_min', valMin);
+      } else {
+        url.searchParams.delete('preco_min');
+      }
+      if (valMax < max) {
+        url.searchParams.set('preco_max', valMax);
+      } else {
+        url.searchParams.delete('preco_max');
+      }
+
+      const hxGet = applyBtn.getAttribute('hx-get');
+      applyBtn.setAttribute('hx-get', url.pathname + url.search);
+      applyBtn.click();
+    });
+  }
+
+  updateRange();
+}
+
+document.addEventListener('DOMContentLoaded', initPriceSlider);
+document.addEventListener('htmx:afterSwap', initPriceSlider);

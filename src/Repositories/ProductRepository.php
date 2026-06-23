@@ -61,6 +61,8 @@ final class ProductRepository
         int $page,
         int $perPage,
         ?array $tags = null,
+        ?int $priceMin = null,
+        ?int $priceMax = null,
     ): array {
         $where = ['active = 1'];
         $params = [];
@@ -94,6 +96,16 @@ final class ProductRepository
         if ($search) {
             $where[] = 'name LIKE :search';
             $params['search'] = '%' . $search . '%';
+        }
+
+        if ($priceMin !== null && $priceMin > 0) {
+            $where[] = 'price_fitc >= :price_min';
+            $params['price_min'] = $priceMin;
+        }
+
+        if ($priceMax !== null && $priceMax > 0) {
+            $where[] = 'price_fitc <= :price_max';
+            $params['price_max'] = $priceMax;
         }
 
         $whereSql = implode(' AND ', $where);
