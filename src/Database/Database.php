@@ -52,7 +52,7 @@ final class Database
 
   public function migrate(): void
   {
-    $schema = file_get_contents($this->root . '/database/schema.sql');
+    $schema = $this->readSqlFile($this->root . '/database/schema.sql');
     $this->pdo->exec($schema);
 
     $migrationsDir = $this->root . '/database/migrations';
@@ -82,7 +82,7 @@ final class Database
         continue;
       }
 
-      $this->pdo->exec(file_get_contents($file));
+      $this->pdo->exec($this->readSqlFile($file));
       $insert->execute([$name]);
     }
 
@@ -134,6 +134,16 @@ final class Database
       url: $url,
       authToken: $token,
     );
+  }
+
+  private function readSqlFile(string $path): string
+  {
+    $sql = file_get_contents($path);
+    if ($sql === false) {
+      throw new \RuntimeException("Nao foi possivel ler o arquivo SQL: {$path}");
+    }
+
+    return preg_replace('/^\xEF\xBB\xBF/', '', $sql) ?? $sql;
   }
 
   private function seedAdminsIfMissing(): void
