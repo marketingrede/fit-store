@@ -1,0 +1,18 @@
+<% content_for :title, "Anúncios" %>
+
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Anúncios</h1>
+  <%= link_to "Novo anúncio", new_admin_announcement_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %>
+</div>
+
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b"><tr><th class="text-left px-4 py-3">Título</th><th class="text-left px-4 py-3">Status</th><th class="text-right px-4 py-3">Ações</th></tr></thead>
+    <tbody>
+      <% @announcements.each do |a| %>
+        <tr class="border-b"><td class="px-4 py-3"><%= a.title %></td><td class="px-4 py-3"><%= a.status %></td>
+          <td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_announcement_path(a), class: "text-teal-700" %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,99 +1,81 @@
 # Fit Store — Movimenta+
 
-Loja virtual completa em **PHP Slim 4 + SQLite** com painel administrativo.
+Loja virtual com painel administrativo em **Rails 8 + SQLite + Inertia/Svelte**.
 
-## Funcionalidades
+## Stack
 
-### Loja pública
-- Catálogo com busca e filtros por categoria
-- Página de produto com imagem e preço em Fitcoin
-- Carrossel de anúncios publicados
-- Fluxo de troca: modal → resumo → confirmação → e-mail/SQLite
+- Rails 8.1 + SQLite 3 (WAL, `lib/sqlite_tuning.rb`)
+- Tailwind CSS
+- Inertia.js + Svelte 5 (loja)
+- Admin ERB + Hotwire
 
-### Painel admin (`/admin`)
-- Login com proteção contra brute force
-- Dashboard com métricas e últimas trocas
-- **CRUD de produtos** (ativo/inativo, upload ou URL de imagem)
-- **CRUD de anúncios** (Quill WYSIWYG + Cropper.js 16:9)
-- Listagem de **solicitações de troca**
-- Alteração de senha
+## Setup
 
-## Instalação
-
-```bash
-composer install
-cp .env.example .env
-npm install
-npm run build
-```
-
-Logo:
-
-```bash
-mkdir -p public/imagens
-cp "Imagens Site/LOGO Movimenta + (V).jpg" public/imagens/logo.jpg
-```
-
-### Desenvolvimento
-
-```bash
-composer start          # http://localhost:8080
-npm run dev             # watch de assets (opcional)
-```
-
-### Docker / Easypanel
+### Docker (recomendado no Windows)
 
 ```bash
 docker compose up --build
+# App: http://localhost:3001  (porta 3001 se 3000 estiver em uso)
 ```
 
-### Render + Turso (produção)
+No Windows, `rails s` local exige WSL2 ou Linux — gems nativas (Puma, etc.) não instalam sem `make`. Use Docker.
 
-Ver [docs/deploy-render-turso.md](docs/deploy-render-turso.md).
+### Local (Linux / macOS / WSL2)
 
-Volumes persistentes (Docker local):
-- `./data` → SQLite
-- `./public/uploads` → imagens
+```bash
+bundle install
+npm install
+bin/rails db:prepare db:seed
+bin/rails sqlite:health
+bin/dev
+```
 
-## Credenciais admin
+## Variáveis de ambiente
 
-No `.env`, a senha inicial (`ADMIN_PASSWORD`) é aplicada aos administradores criados no seed:
+Copie `.env.example` para `.env` e ajuste:
+
+- `ADMIN_PASSWORD` — senha dos admins no seed
+- `SESSION_SECRET` — chave de sessão (produção)
+
+## Credenciais admin (seed)
 
 - `epilian.silva@redemontagens.com.br`
 - `raillen.santos@redemontagens.com.br`
 
-```
-ADMIN_PASSWORD=altere-esta-senha
-SESSION_SECRET=gere-uma-chave-aleatoria
-```
+Senha: valor de `ADMIN_PASSWORD` (padrão `altere-esta-senha`).
 
-## Rotas
+## Rotas principais
 
 | Rota | Descrição |
 |------|-----------|
-| `GET /` | Catálogo |
-| `GET /produto/{id}` | Detalhe do produto |
-| `POST /api/troca-fitcoin` | Solicitação de troca |
-| `GET /admin` | Dashboard |
-| `GET /admin/produtos` | Gestão de produtos |
-| `GET /admin/anuncios` | Gestão de anúncios |
-| `GET /admin/trocas` | Solicitações de troca |
-| `GET /admin/conta` | Alterar senha |
+| `/` | Catálogo |
+| `/produto/:id` | Produto |
+| `/colaborador/login` | Login colaborador |
+| `/colaborador/catalogo` | Resgates |
+| `/admin` | Dashboard |
+| `/admin/produtos` | CRUD produtos |
+| `/admin/colaboradores` | Gestão FITC |
+| `/health` | Health check |
 
-## Estrutura
+## SQLite
 
-```
-public/           Document root
-src/              PHP (controllers, repos, services)
-templates/        Twig
-database/         Schema + seed
-resources/        CSS/JS (Vite)
-data/app.db       SQLite
-legacy/           Site estático antigo
+```bash
+bin/rails sqlite:health
+bin/rails sqlite:wal_checkpoint   # antes de backup
+bin/rails legacy:import_sqlite    # importar storage/legacy_app.db
 ```
 
-## Backup
+Ver [docs/adr/001-sqlite-stack.md](docs/adr/001-sqlite-stack.md).
 
-Faça backup periódico de:
-- `data/app.db`
-- `public/uploads/`
+## Testes
+
+```bash
+bundle exec rspec
+bin/rubocop
+bin/brakeman
+```
+
+## Documentação
+
+- [docs/plano-migracao-rails.md](docs/plano-migracao-rails.md)
+- [AGENTS.md](AGENTS.md) — skills obrigatórias para agentes IA

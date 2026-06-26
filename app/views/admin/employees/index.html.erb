@@ -1,0 +1,19 @@
+<% content_for :title, "Contas colaboradores" %>
+
+<h1 class="text-2xl font-bold mb-6">Contas de colaboradores</h1>
+
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Nome</th><th class="px-4 py-3 text-left">Matrícula</th><th class="px-4 py-3 text-right">Saldo</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
+    <tbody>
+      <% @employees.each do |emp| %>
+        <tr class="border-b">
+          <td class="px-4 py-3"><%= emp.full_name %></td>
+          <td class="px-4 py-3"><%= emp.employee_id %></td>
+          <td class="px-4 py-3 text-right"><%= emp.fitc_wallet&.balance_fitc || 0 %></td>
+          <td class="px-4 py-3 text-right"><%= link_to "Ver", admin_employee_path(emp), class: "text-teal-700" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

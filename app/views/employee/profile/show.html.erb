@@ -1,0 +1,36 @@
+<% content_for :title, "Meu Perfil" %>
+
+<section>
+  <h1 class="text-2xl font-bold mb-6">Meu Perfil</h1>
+
+  <dl class="bg-white rounded-xl border border-slate-200 p-6 grid gap-4 sm:grid-cols-2">
+    <div>
+      <dt class="text-sm text-slate-500">Nome</dt>
+      <dd class="font-medium"><%= current_employee.full_name %></dd>
+    </div>
+    <div>
+      <dt class="text-sm text-slate-500">Matrícula</dt>
+      <dd class="font-medium"><%= current_employee.employee_id %></dd>
+    </div>
+    <div>
+      <dt class="text-sm text-slate-500">E-mail</dt>
+      <dd class="font-medium"><%= current_employee.email %></dd>
+    </div>
+    <div>
+      <dt class="text-sm text-slate-500">Saldo FITC</dt>
+      <dd class="font-bold text-teal-700 text-xl"><%= @wallet.balance_fitc %></dd>
+    </div>
+  </dl>
+
+  <% if @recent_orders.any? %>
+    <h2 class="text-lg font-semibold mt-8 mb-4">Resgates recentes</h2>
+    <ul class="space-y-2">
+      <% @recent_orders.each do |order| %>
+        <li class="bg-white rounded-lg border border-slate-200 px-4 py-3 flex justify-between">
+          <span><%= order.product_name %></span>
+          <span class="text-teal-700 font-medium"><%= order.product_price_fitc %> FITC</span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

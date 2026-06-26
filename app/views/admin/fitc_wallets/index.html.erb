@@ -1,0 +1,44 @@
+<% content_for :title, "Saldos FITC" %>
+
+<h1 class="text-2xl font-bold mb-6">Saldos FITC</h1>
+
+<section class="bg-white rounded-xl border p-6 mb-8 max-w-xl">
+  <h2 class="font-semibold mb-4">Ajustar saldo</h2>
+  <%= form_with url: admin_adjust_fitc_wallet_path, class: "space-y-4" do %>
+    <div>
+      <label class="block text-sm mb-1">Colaborador</label>
+      <select name="employee_id" required class="w-full border rounded-lg px-3 py-2">
+        <% @employees.each do |emp| %>
+          <option value="<%= emp.id %>"><%= emp.full_name %> (<%= emp.employee_id %>)</option>
+        <% end %>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm mb-1">Tipo</label>
+      <select name="adjustment_type" class="w-full border rounded-lg px-3 py-2">
+        <option value="credit">Crédito</option>
+        <option value="debit">Débito</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm mb-1">Valor FITC</label>
+      <input type="number" name="amount" min="1" required class="w-full border rounded-lg px-3 py-2">
+    </div>
+    <div>
+      <label class="block text-sm mb-1">Descrição</label>
+      <input type="text" name="description" class="w-full border rounded-lg px-3 py-2">
+    </div>
+    <button type="submit" class="rounded-lg bg-slate-900 text-white px-4 py-2">Ajustar</button>
+  <% end %>
+</section>
+
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Colaborador</th><th class="px-4 py-3 text-right">Saldo</th></tr></thead>
+    <tbody>
+      <% @wallets.each do |w| %>
+        <tr class="border-b"><td class="px-4 py-3"><%= w.employee.full_name %></td><td class="px-4 py-3 text-right font-medium"><%= w.balance_fitc %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

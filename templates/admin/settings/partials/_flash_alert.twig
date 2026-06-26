@@ -1,6 +1,0 @@
-{% if flash %}
-  <div class="admin-alert {{ flash.type == 'success' ? 'admin-alert--success' : 'admin-alert--error' }}">
-    {% if flash.type == 'success' %}<i data-lucide="circle-check"></i>{% else %}<i data-lucide="circle-alert"></i>{% endif %}
-    {{ flash.message }}
-  </div>
-{% endif %}

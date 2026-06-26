@@ -1,0 +1,10 @@
+<h1 class="text-2xl font-bold mb-6">Editar CTA — Slot <%= @card.slot %></h1>
+<%= form_with model: [:admin, @card], class: "max-w-xl space-y-4 bg-white rounded-xl border p-6" do |f| %>
+  <div><%= f.label :title, "Título" %><%= f.text_field :title, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :body, "Texto" %><%= f.text_area :body, rows: 3, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :link_url, "URL" %><%= f.url_field :link_url, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :link_label, "Label do link" %><%= f.text_field :link_label, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :variant %><%= f.select :variant, %w[teal blue], {}, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :active, class: "inline-flex gap-2 items-center" do %><%= f.check_box :active %> Ativo<% end %></div>
+  <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2" %>
+<% end %>

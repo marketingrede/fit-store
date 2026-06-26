@@ -1,0 +1,8 @@
+<% content_for :title, "Presets de variação" %>
+
+<div class="flex justify-between mb-6"><h1 class="text-2xl font-bold">Presets de variação</h1><%= link_to "Novo", new_admin_variation_preset_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %></div>
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm"><thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Nome</th><th class="px-4 py-3">Unidade</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
+    <tbody><% @presets.each do |p| %><tr class="border-b"><td class="px-4 py-3"><%= p.name %></td><td class="px-4 py-3"><%= p.unit %></td><td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_variation_preset_path(p), class: "text-teal-700" %></td></tr><% end %></tbody>
+  </table>
+</div>

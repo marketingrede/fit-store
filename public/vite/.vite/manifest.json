@@ -1,0 +1,20 @@
+{
+  "entrypoints/application.css": {
+    "file": "assets/application-CBKmDg_m.css",
+    "src": "entrypoints/application.css",
+    "isEntry": true,
+    "name": "entrypoints\\application.css",
+    "names": [
+      "entrypoints/application.css"
+    ]
+  },
+  "entrypoints/inertia.js": {
+    "file": "assets/inertia-BXMPj-0i.js",
+    "name": "entrypoints\\inertia.js",
+    "src": "entrypoints/inertia.js",
+    "isEntry": true,
+    "css": [
+      "assets/application-CBKmDg_m.css"
+    ]
+  }
+}

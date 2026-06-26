@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Colaborador — Fit Store" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="bg-slate-50 text-slate-900 min-h-screen">
+    <% if current_employee %>
+      <header class="bg-teal-700 text-white">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm opacity-90">Olá, <%= current_employee.full_name %></p>
+              <p class="font-semibold"><%= current_employee.fitc_wallet&.balance_fitc || 0 %> FITC</p>
+            </div>
+            <%= button_to "Sair", colaborador_logout_path, method: :post, class: "text-sm underline" %>
+          </div>
+          <nav class="mt-4 flex flex-wrap gap-3 text-sm">
+            <%= link_to "Perfil", colaborador_root_path, class: "hover:underline" %>
+            <%= link_to "Extrato", colaborador_extrato_path, class: "hover:underline" %>
+            <%= link_to "Resgates", colaborador_resgates_path, class: "hover:underline" %>
+            <%= link_to "Catálogo", colaborador_catalogo_path, class: "hover:underline" %>
+          </nav>
+        </div>
+      </header>
+    <% end %>
+    <main class="max-w-4xl mx-auto px-4 py-8">
+      <%= render "shared/flash" %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

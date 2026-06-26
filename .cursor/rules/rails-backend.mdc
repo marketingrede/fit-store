@@ -1,0 +1,13 @@
+---
+description: Padrões Ruby/Rails
+globs: app/**/*.rb,lib/**/*.rb
+alwaysApply: false
+---
+
+# Rails — Fit Store
+
+Leia `.cursor/skills/fit-store-rails/SKILL.md` e skills Rails listadas em `00-mandatory-skills.mdc`.
+
+- Controllers finos; negócio em `app/services/`.
+- Transações FITC: `transaction` + `fitc_wallet.lock!`.
+- Specs RSpec para services de saldo.

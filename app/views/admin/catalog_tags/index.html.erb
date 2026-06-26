@@ -1,0 +1,8 @@
+<% content_for :title, "Tags" %>
+
+<div class="flex justify-between mb-6"><h1 class="text-2xl font-bold">Tags</h1><%= link_to "Nova", new_admin_catalog_tag_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %></div>
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm"><thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Nome</th><th class="px-4 py-3">Cor</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
+    <tbody><% @tags.each do |t| %><tr class="border-b"><td class="px-4 py-3"><%= t.name %></td><td class="px-4 py-3"><%= t.color %></td><td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_catalog_tag_path(t), class: "text-teal-700" %></td></tr><% end %></tbody>
+  </table>
+</div>

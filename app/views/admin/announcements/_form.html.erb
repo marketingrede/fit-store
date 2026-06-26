@@ -1,0 +1,12 @@
+<% content_for :title, (@announcement.persisted? ? "Editar anúncio" : "Novo anúncio") %>
+
+<h1 class="text-2xl font-bold mb-6"><%= @announcement.persisted? ? "Editar anúncio" : "Novo anúncio" %></h1>
+
+<%= form_with model: [:admin, @announcement], class: "max-w-xl space-y-4 bg-white rounded-xl border p-6" do |f| %>
+  <div><%= f.label :title %><%= f.text_field :title, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :slug %><%= f.text_field :slug, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :status %><%= f.select :status, Announcement.statuses.keys, {}, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :content_html, "Conteúdo HTML" %><%= f.text_area :content_html, rows: 6, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :image_url %><%= f.url_field :image_url, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2" %>
+<% end %>

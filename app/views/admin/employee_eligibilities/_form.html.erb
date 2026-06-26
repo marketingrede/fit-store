@@ -1,0 +1,12 @@
+<h1 class="text-2xl font-bold mb-6"><%= @eligibility.persisted? ? "Editar elegível" : "Novo elegível" %></h1>
+
+<%= form_with model: [:admin, @eligibility], class: "max-w-xl space-y-4 bg-white rounded-xl border p-6" do |f| %>
+  <div><%= f.label :employee_id, "Matrícula" %><%= f.text_field :employee_id, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :full_name, "Nome" %><%= f.text_field :full_name, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :email %><%= f.email_field :email, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :department, "Departamento" %><%= f.text_field :department, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :status %><%= f.select :status, %w[active inactive], {}, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :initial_balance_fitc, "Saldo inicial FITC" %><%= f.number_field :initial_balance_fitc, min: 0, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <div><%= f.label :notes, "Observações" %><%= f.text_area :notes, rows: 3, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
+  <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2" %>
+<% end %>

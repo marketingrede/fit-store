@@ -1,0 +1,25 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-slate-900 mb-6">Colaboradores</h1>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white rounded-lg border border-slate-200 p-4">
+      <p class="text-sm text-slate-500">Elegíveis</p>
+      <p class="text-2xl font-bold"><%= @stats[:total_eligible] %></p>
+    </div>
+    <div class="bg-white rounded-lg border border-slate-200 p-4">
+      <p class="text-sm text-slate-500">Cadastrados</p>
+      <p class="text-2xl font-bold"><%= @stats[:registered] %></p>
+    </div>
+    <div class="bg-white rounded-lg border border-slate-200 p-4">
+      <p class="text-sm text-slate-500">FITC em circulação</p>
+      <p class="text-2xl font-bold text-teal-600"><%= @stats[:total_balance] %></p>
+    </div>
+  </div>
+
+  <nav class="flex flex-wrap gap-3">
+    <%= link_to "Elegíveis", admin_employee_eligibilities_path, class: "px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium" %>
+    <%= link_to "Contas", admin_employees_path, class: "px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium" %>
+    <%= link_to "Saldos", admin_fitc_wallets_path, class: "px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium" %>
+    <%= link_to "Pedidos", admin_trade_orders_path, class: "px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium" %>
+  </nav>
+</div>

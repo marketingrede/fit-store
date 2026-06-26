@@ -1,0 +1,40 @@
+---
+description: Skills obrigatórias — Fit Store Rails
+alwaysApply: true
+---
+
+# Skills obrigatórias
+
+Antes de implementar, refatorar ou revisar código neste repositório, **leia e siga** as skills aplicáveis.
+
+## Orquestração
+
+1. **fit-store-rails** — `.cursor/skills/fit-store-rails/SKILL.md`
+
+## Backend Rails
+
+| Skill | Caminho |
+|-------|---------|
+| Rails Way | `~/.codex/skills/global-rails-way-architecture/SKILL.md` |
+| Ruby idiomático | `~/.codex/skills/global-ruby-semantic-code/SKILL.md` |
+| Testes | `~/.codex/skills/global-rails-testing-quality/SKILL.md` |
+| Segurança | `~/.codex/skills/global-rails-saas-security/SKILL.md` |
+| Views acessíveis | `~/.codex/skills/global-rails-accessible-views/SKILL.md` |
+
+## Frontend Svelte
+
+| Skill | Caminho |
+|-------|---------|
+| Svelte code writer | `~/.cursor/skills-cursor/svelte-code-writer/SKILL.md` |
+| Svelte boas práticas | `~/.cursor/skills-cursor/svelte-core-bestpractices/SKILL.md` |
+| UI | `~/.agents/skills/design-taste-frontend/SKILL.md` |
+
+## Documentação
+
+`~/.codex/skills/global-living-docs/SKILL.md` — docs em PT-BR, incremental.
+
+## Regras
+
+- Ledger FITC: transação explícita + specs de service.
+- SQLite: `lib/sqlite_tuning.rb` — ver `docs/adr/001-sqlite-stack.md`.
+- Não commitar `config/master.key` nem `.env` com segredos.

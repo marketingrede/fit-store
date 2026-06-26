@@ -1,0 +1,12 @@
+---
+description: Svelte + Inertia
+globs: app/frontend/**/*
+alwaysApply: false
+---
+
+# Svelte + Inertia
+
+Leia `svelte-code-writer`, `svelte-core-bestpractices`, `design-taste-frontend`.
+
+- Svelte 5 runes (`$state`, `$derived`, `$props`).
+- Preço FITC sempre validado no servidor.

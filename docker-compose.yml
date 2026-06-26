@@ -1,11 +1,24 @@
 services:
-  app:
-    build: .
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
-      - "8080:80"
+      - "3001:3000"
+      - "3036:3036"
     volumes:
-      - ./data:/var/www/html/data
-      - ./public/uploads:/var/www/html/public/uploads
-    env_file:
-      - .env
-    restart: unless-stopped
+      - .:/rails
+      - bundle:/usr/local/bundle
+      - node_modules:/rails/node_modules
+      - storage:/rails/storage
+    environment:
+      RAILS_ENV: development
+      BINDING: 0.0.0.0
+      ADMIN_PASSWORD: altere-esta-senha
+    stdin_open: true
+    tty: true
+
+volumes:
+  bundle:
+  node_modules:
+  storage:

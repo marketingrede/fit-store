@@ -1,0 +1,21 @@
+<% content_for :title, "Trocas legado" %>
+
+<h1 class="text-2xl font-bold mb-6">Trocas (formulário legado)</h1>
+
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b">
+      <tr><th class="text-left px-4 py-3">Data</th><th class="text-left px-4 py-3">Nome</th><th class="text-left px-4 py-3">E-mail</th><th class="text-left px-4 py-3">Produto</th></tr>
+    </thead>
+    <tbody>
+      <% @trade_requests.each do |req| %>
+        <tr class="border-b">
+          <td class="px-4 py-3"><%= l(req.created_at, format: :short) %></td>
+          <td class="px-4 py-3"><%= req.name %></td>
+          <td class="px-4 py-3"><%= req.email %></td>
+          <td class="px-4 py-3"><%= req.product_name %> (<%= req.product_price_fitc %> FITC)</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

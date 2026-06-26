@@ -1,0 +1,46 @@
+<% content_for :title, "Dashboard" %>
+
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <% @stats.each do |label, value| %>
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+      <p class="text-xs uppercase tracking-wide text-slate-500"><%= label.to_s.humanize %></p>
+      <p class="text-2xl font-bold mt-1"><%= value %></p>
+    </div>
+  <% end %>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-6">
+  <section class="bg-white rounded-xl border border-slate-200 p-6">
+    <h2 class="font-semibold mb-4">Trocas legado (recentes)</h2>
+    <% if @recent_trade_requests.any? %>
+      <ul class="space-y-2 text-sm">
+        <% @recent_trade_requests.each do |req| %>
+          <li class="flex justify-between border-b border-slate-100 pb-2">
+            <span><%= req.product_name %></span>
+            <span class="text-slate-500"><%= req.email %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-slate-500 text-sm">Nenhuma troca legado.</p>
+    <% end %>
+  </section>
+
+  <section class="bg-white rounded-xl border border-slate-200 p-6">
+    <h2 class="font-semibold mb-4">Pedidos recentes</h2>
+    <% if @recent_orders.any? %>
+      <ul class="space-y-2 text-sm">
+        <% @recent_orders.each do |order| %>
+          <li class="flex justify-between border-b border-slate-100 pb-2">
+            <span><%= order.product_name %></span>
+            <span class="text-slate-500"><%= order.employee.full_name %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-slate-500 text-sm">Nenhum pedido.</p>
+    <% end %>
+  </section>
+</div>

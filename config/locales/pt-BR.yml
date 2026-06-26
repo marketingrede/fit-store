@@ -1,0 +1,7 @@
+pt-BR:
+  fit_store_rails:
+    hello: "Fit Store — Movimenta+"
+  time:
+    formats:
+      short: "%d/%m/%Y %H:%M"
+      long: "%d/%m/%Y às %H:%M"

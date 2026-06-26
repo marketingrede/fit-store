@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+if ! command -v foreman &>/dev/null; then
+  echo "Iniciando Rails + Vite (sem foreman)..."
+  trap 'kill 0' SIGINT SIGTERM
+  bin/rails server -b "${BINDING:-0.0.0.0}" -p 3000 &
+  bin/vite dev &
+  wait
+else
+  exec foreman start -f Procfile.dev "$@"
+fi

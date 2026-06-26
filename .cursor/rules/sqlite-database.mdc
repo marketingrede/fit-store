@@ -1,0 +1,9 @@
+---
+description: SQLite tuning
+globs: db/**/*,lib/sqlite_tuning.rb,config/database.yml
+alwaysApply: false
+---
+
+# SQLite
+
+Ver `docs/adr/001-sqlite-stack.md`. Comandos: `bin/rails sqlite:health`, `sqlite:wal_checkpoint`, `sqlite:optimize`.

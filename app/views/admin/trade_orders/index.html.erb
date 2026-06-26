@@ -1,0 +1,34 @@
+<% content_for :title, "Pedidos" %>
+
+<h1 class="text-2xl font-bold mb-6">Pedidos de resgate</h1>
+
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b">
+      <tr>
+        <th class="text-left px-4 py-3">Data</th>
+        <th class="text-left px-4 py-3">Colaborador</th>
+        <th class="text-left px-4 py-3">Produto</th>
+        <th class="text-right px-4 py-3">FITC</th>
+        <th class="text-left px-4 py-3">Status</th>
+        <th class="text-right px-4 py-3">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr class="border-b">
+          <td class="px-4 py-3"><%= l(order.created_at, format: :short) %></td>
+          <td class="px-4 py-3"><%= order.employee.full_name %></td>
+          <td class="px-4 py-3"><%= order.product_name %></td>
+          <td class="px-4 py-3 text-right"><%= order.product_price_fitc %></td>
+          <td class="px-4 py-3"><%= order.status %></td>
+          <td class="px-4 py-3 text-right">
+            <% if order.status == "confirmed" %>
+              <%= button_to "Cancelar", admin_trade_order_path(order), method: :patch, params: { trade_order: { status: "cancelled" } }, form: { data: { turbo_confirm: "Estornar pedido?" } }, class: "text-red-600 text-xs" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

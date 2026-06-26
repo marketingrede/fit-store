@@ -1,0 +1,59 @@
+<% content_for :title, "Fit Store — Catálogo" %>
+
+<section class="mb-8">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Catálogo Fit Store</h1>
+  <p class="text-slate-600">Troque seus Fitcoin por produtos e benefícios.</p>
+</section>
+
+<%= form_with url: root_path, method: :get, class: "mb-8 grid gap-4 md:grid-cols-4", data: { turbo: false } do %>
+  <div class="md:col-span-2">
+    <label for="q" class="block text-sm font-medium mb-1">Buscar</label>
+    <input type="search" name="q" id="q" value="<%= @filters[:q] %>" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+  </div>
+  <div>
+    <label for="price_min" class="block text-sm font-medium mb-1">Preço mín.</label>
+    <input type="number" name="price_min" id="price_min" value="<%= @filters[:price_min] %>" min="0" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+  </div>
+  <div>
+    <label for="price_max" class="block text-sm font-medium mb-1">Preço máx.</label>
+    <input type="number" name="price_max" id="price_max" value="<%= @filters[:price_max] %>" min="0" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+  </div>
+  <div class="md:col-span-4 flex flex-wrap gap-4">
+    <% @categories.each do |category| %>
+      <label class="inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" name="categorias[]" value="<%= category.slug %>" <%= "checked" if @filters[:categorias]&.include?(category.slug) %>>
+        <%= category.label %>
+      </label>
+    <% end %>
+  </div>
+  <div class="md:col-span-4">
+    <button type="submit" class="rounded-lg bg-teal-700 text-white px-4 py-2 hover:bg-teal-800">Filtrar</button>
+  </div>
+<% end %>
+
+<p class="text-sm text-slate-500 mb-4"><%= @pagination[:total] %> produto(s)</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  <% @products.each do |product| %>
+    <article class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+      <% if product.image_url.present? %>
+        <img src="<%= product.image_url %>" alt="" class="w-full h-40 object-cover">
+      <% else %>
+        <div class="w-full h-40 bg-slate-100 flex items-center justify-center text-slate-400">Sem imagem</div>
+      <% end %>
+      <div class="p-4">
+        <% if product.tag.present? %>
+          <span class="text-xs font-medium text-teal-700"><%= product.tag %></span>
+        <% end %>
+        <h2 class="font-semibold mt-1">
+          <a href="<%= product_path(product) %>" class="hover:text-teal-700"><%= product.name %></a>
+        </h2>
+        <p class="text-teal-700 font-bold mt-2"><%= product.price_fitc %> FITC</p>
+      </div>
+    </article>
+  <% end %>
+</div>
+
+<% if @products.empty? %>
+  <p class="text-center text-slate-500 py-12">Nenhum produto encontrado.</p>
+<% end %>

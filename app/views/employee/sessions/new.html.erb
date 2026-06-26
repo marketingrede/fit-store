@@ -1,0 +1,22 @@
+<% content_for :title, "Login — Colaborador" %>
+
+<div class="max-w-md mx-auto">
+  <h1 class="text-2xl font-bold mb-6">Login Colaborador</h1>
+
+  <%= form_with url: colaborador_login_path, class: "space-y-4" do %>
+    <div>
+      <label for="employee_id" class="block text-sm font-medium mb-1">Matrícula</label>
+      <input type="text" name="employee_id" id="employee_id" required autocomplete="username" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+    </div>
+    <div>
+      <label for="password" class="block text-sm font-medium mb-1">Senha</label>
+      <input type="password" name="password" id="password" required autocomplete="current-password" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+    </div>
+    <button type="submit" class="w-full rounded-lg bg-teal-700 text-white py-2 hover:bg-teal-800">Entrar</button>
+  <% end %>
+
+  <p class="mt-6 text-sm text-center text-slate-600">
+    Primeiro acesso?
+    <%= link_to "Cadastre-se", colaborador_cadastro_path, class: "text-teal-700 hover:underline" %>
+  </p>
+</div>

@@ -1,0 +1,23 @@
+<% content_for :title, "Elegíveis" %>
+
+<div class="flex justify-between mb-6">
+  <h1 class="text-2xl font-bold">Colaboradores elegíveis</h1>
+  <%= link_to "Novo", new_admin_employee_eligibility_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %>
+</div>
+
+<div class="bg-white rounded-xl border overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Matrícula</th><th class="px-4 py-3 text-left">Nome</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-right">Saldo inicial</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
+    <tbody>
+      <% @eligibilities.each do |e| %>
+        <tr class="border-b">
+          <td class="px-4 py-3"><%= e.employee_id %></td>
+          <td class="px-4 py-3"><%= e.full_name %></td>
+          <td class="px-4 py-3"><%= e.status %></td>
+          <td class="px-4 py-3 text-right"><%= e.initial_balance_fitc %></td>
+          <td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_employee_eligibility_path(e), class: "text-teal-700" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

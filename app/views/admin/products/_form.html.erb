@@ -1,0 +1,44 @@
+<% content_for :title, (@product.persisted? ? "Editar produto" : "Novo produto") %>
+
+<h1 class="text-2xl font-bold mb-6"><%= @product.persisted? ? "Editar produto" : "Novo produto" %></h1>
+
+<%= form_with model: [:admin, @product], class: "max-w-xl space-y-4 bg-white rounded-xl border border-slate-200 p-6" do |f| %>
+  <% if @product.errors.any? %>
+    <div class="text-red-600 text-sm"><%= @product.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Nome", class: "block text-sm font-medium mb-1" %>
+    <%= f.text_field :name, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+  <div>
+    <%= f.label :category, "Categoria", class: "block text-sm font-medium mb-1" %>
+    <%= f.select :category, @categories.map { |c| [c.label, c.slug] }, {}, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+  <div>
+    <%= f.label :price_fitc, "Preço FITC", class: "block text-sm font-medium mb-1" %>
+    <%= f.number_field :price_fitc, min: 0, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+  <div>
+    <%= f.label :description, "Descrição", class: "block text-sm font-medium mb-1" %>
+    <%= f.text_area :description, rows: 4, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+  <div>
+    <%= f.label :image_url, "URL da imagem", class: "block text-sm font-medium mb-1" %>
+    <%= f.url_field :image_url, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+  <div>
+    <%= f.label :tag, "Tag", class: "block text-sm font-medium mb-1" %>
+    <%= f.text_field :tag, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+  <div>
+    <%= f.label :active, class: "inline-flex items-center gap-2" do %>
+      <%= f.check_box :active %>
+      <span>Ativo</span>
+    <% end %>
+  </div>
+  <div class="flex gap-3">
+    <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2 hover:bg-slate-800" %>
+    <%= link_to "Cancelar", admin_products_path, class: "rounded-lg border border-slate-300 px-4 py-2" %>
+  </div>
+<% end %>
