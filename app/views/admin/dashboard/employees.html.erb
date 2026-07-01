@@ -1,25 +1,72 @@
-<div class="max-w-4xl mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold text-slate-900 mb-6">Colaboradores</h1>
+<% content_for :title, "Colaboradores" %>
 
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-    <div class="bg-white rounded-lg border border-slate-200 p-4">
-      <p class="text-sm text-slate-500">Elegíveis</p>
-      <p class="text-2xl font-bold"><%= @stats[:total_eligible] %></p>
-    </div>
-    <div class="bg-white rounded-lg border border-slate-200 p-4">
-      <p class="text-sm text-slate-500">Cadastrados</p>
-      <p class="text-2xl font-bold"><%= @stats[:registered] %></p>
-    </div>
-    <div class="bg-white rounded-lg border border-slate-200 p-4">
-      <p class="text-sm text-slate-500">FITC em circulação</p>
-      <p class="text-2xl font-bold text-teal-600"><%= @stats[:total_balance] %></p>
-    </div>
+<div class="admin-page-header">
+  <div>
+    <h1>Colaboradores</h1>
+    <p>Gerencie elegibilidade, contas, saldos FITC e pedidos de resgate.</p>
   </div>
-
-  <nav class="flex flex-wrap gap-3">
-    <%= link_to "Elegíveis", admin_employee_eligibilities_path, class: "px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium" %>
-    <%= link_to "Contas", admin_employees_path, class: "px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium" %>
-    <%= link_to "Saldos", admin_fitc_wallets_path, class: "px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium" %>
-    <%= link_to "Pedidos", admin_trade_orders_path, class: "px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium" %>
-  </nav>
 </div>
+
+<section class="admin-stat-grid" aria-label="Indicadores de colaboradores">
+  <article class="admin-stat-card">
+    <span class="admin-stat-card__icon" aria-hidden="true"></span>
+    <span>
+      <span class="admin-stat-card__label">Elegíveis</span>
+      <strong><%= @stats[:total_eligible] %></strong>
+      <span class="admin-stat-card__hint"><%= @stats[:active_eligible] %> ativos</span>
+    </span>
+  </article>
+
+  <article class="admin-stat-card">
+    <span class="admin-stat-card__icon admin-stat-card__icon--blue" aria-hidden="true"></span>
+    <span>
+      <span class="admin-stat-card__label">Cadastrados</span>
+      <strong><%= @stats[:registered] %></strong>
+      <span class="admin-stat-card__hint">Contas criadas</span>
+    </span>
+  </article>
+
+  <article class="admin-stat-card">
+    <span class="admin-stat-card__icon" aria-hidden="true"></span>
+    <span>
+      <span class="admin-stat-card__label">FITC em circulação</span>
+      <strong><%= number_with_delimiter(@stats[:total_balance]) %></strong>
+      <span class="admin-stat-card__hint">Saldo nas carteiras</span>
+    </span>
+  </article>
+
+  <article class="admin-stat-card">
+    <span class="admin-stat-card__icon admin-stat-card__icon--blue" aria-hidden="true"></span>
+    <span>
+      <span class="admin-stat-card__label">Pedidos</span>
+      <strong><%= @stats[:total_orders] %></strong>
+      <span class="admin-stat-card__hint">Resgates registrados</span>
+    </span>
+  </article>
+</section>
+
+<section class="admin-hub-grid" aria-label="Áreas de colaboradores">
+  <%= link_to admin_employee_eligibilities_path, class: "admin-hub-card" do %>
+    <span>Elegíveis</span>
+    <strong><%= @stats[:active_eligible] %></strong>
+    <small>Importar e gerenciar whitelist</small>
+  <% end %>
+
+  <%= link_to admin_employees_path, class: "admin-hub-card" do %>
+    <span>Contas</span>
+    <strong><%= @stats[:registered] %></strong>
+    <small>Colaboradores cadastrados</small>
+  <% end %>
+
+  <%= link_to admin_fitc_wallets_path, class: "admin-hub-card" do %>
+    <span>Saldos</span>
+    <strong><%= number_with_delimiter(@stats[:total_balance]) %></strong>
+    <small>Crédito e débito manual</small>
+  <% end %>
+
+  <%= link_to admin_trade_orders_path, class: "admin-hub-card" do %>
+    <span>Pedidos</span>
+    <strong><%= @stats[:total_orders] %></strong>
+    <small>Acompanhar resgates</small>
+  <% end %>
+</section>

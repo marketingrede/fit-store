@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  factory :user do
+    sequence(:email) { |n| "admin#{n}@example.com" }
+    password { "password123" }
+    role { "admin" }
+  end
+
   factory :employee_eligibility do
     sequence(:employee_id) { |n| format("EMP%04d", n) }
     full_name { "João Silva" }
@@ -19,7 +25,7 @@ FactoryBot.define do
     employee_eligibility
     employee_id { employee_eligibility.employee_id }
     sequence(:email) { |n| "colaborador#{n}@example.com" }
-    password_digest { "hashed_password" }
+    password { "password123" }
     full_name { employee_eligibility.full_name }
 
     after(:create) do |employee, evaluator|

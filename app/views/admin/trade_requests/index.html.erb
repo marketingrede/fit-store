@@ -1,21 +1,32 @@
 <% content_for :title, "Trocas legado" %>
 
-<h1 class="text-2xl font-bold mb-6">Trocas (formulário legado)</h1>
+<%= render "admin/shared/page_header", title: "Trocas (formulário legado)", description: "Solicitações enviadas pelo fluxo antigo do catálogo." %>
 
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b">
-      <tr><th class="text-left px-4 py-3">Data</th><th class="text-left px-4 py-3">Nome</th><th class="text-left px-4 py-3">E-mail</th><th class="text-left px-4 py-3">Produto</th></tr>
+<section class="admin-table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>Produto</th>
+        <th class="is-numeric">FITC</th>
+      </tr>
     </thead>
     <tbody>
-      <% @trade_requests.each do |req| %>
-        <tr class="border-b">
-          <td class="px-4 py-3"><%= l(req.created_at, format: :short) %></td>
-          <td class="px-4 py-3"><%= req.name %></td>
-          <td class="px-4 py-3"><%= req.email %></td>
-          <td class="px-4 py-3"><%= req.product_name %> (<%= req.product_price_fitc %> FITC)</td>
+      <% @trade_requests.each do |request| %>
+        <tr>
+          <td><%= l(request.created_at, format: :short) %></td>
+          <td><%= request.name %></td>
+          <td><%= request.email %></td>
+          <td><%= request.product_name %></td>
+          <td class="is-numeric"><%= request.product_price_fitc %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
-</div>
+
+  <% if @trade_requests.empty? %>
+    <p class="admin-empty-text">Nenhuma solicitação registrada.</p>
+  <% end %>
+</section>

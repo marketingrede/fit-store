@@ -1,19 +1,37 @@
 <% content_for :title, "Contas colaboradores" %>
 
-<h1 class="text-2xl font-bold mb-6">Contas de colaboradores</h1>
+<%= render "admin/shared/page_header", title: "Contas de colaboradores" %>
 
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Nome</th><th class="px-4 py-3 text-left">Matrícula</th><th class="px-4 py-3 text-right">Saldo</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
+<section class="admin-table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Matrícula</th>
+        <th class="is-numeric">Saldo FITC</th>
+        <th class="is-actions">Ações</th>
+      </tr>
+    </thead>
     <tbody>
       <% @employees.each do |emp| %>
-        <tr class="border-b">
-          <td class="px-4 py-3"><%= emp.full_name %></td>
-          <td class="px-4 py-3"><%= emp.employee_id %></td>
-          <td class="px-4 py-3 text-right"><%= emp.fitc_wallet&.balance_fitc || 0 %></td>
-          <td class="px-4 py-3 text-right"><%= link_to "Ver", admin_employee_path(emp), class: "text-teal-700" %></td>
+        <tr>
+          <td><%= emp.full_name %></td>
+          <td><%= emp.employee_id %></td>
+          <td class="is-numeric"><%= emp.fitc_wallet&.balance_fitc || 0 %></td>
+          <td class="is-actions">
+            <%= link_to "Ver", admin_employee_path(emp), class: "admin-text-link" %>
+            <button
+              type="button"
+              class="admin-text-link"
+              data-open-balance-modal
+              data-employee-id="<%= emp.id %>"
+              data-employee-name="<%= emp.full_name %>"
+            >Ajustar saldo</button>
+          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
-</div>
+</section>
+
+<%= render "admin/fitc_wallets/balance_modal", employees: @employees %>

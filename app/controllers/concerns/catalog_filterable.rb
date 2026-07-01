@@ -8,9 +8,12 @@ module CatalogFilterable
   private
 
   def catalog_filter_params
+    category_slugs = Array(params[:categorias]).compact_blank
+    category_slugs = Array(params[:category]).compact_blank if category_slugs.empty?
+
     {
       q: params[:q].to_s.strip.presence,
-      categorias: valid_category_slugs(Array(params[:categorias]).compact_blank),
+      categorias: valid_category_slugs(category_slugs),
       tags: valid_tag_names(Array(params[:tags]).compact_blank),
       price_min: parse_price_param(params[:price_min]),
       price_max: parse_price_param(params[:price_max]),

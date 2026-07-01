@@ -1,1 +1,7 @@
+<% content_for :title, (@announcement.persisted? ? "Editar anúncio" : "Novo anúncio") %>
+<% content_for :admin_quill, true %>
+<% content_for :admin_cropper, true %>
+
+<%= render "admin/shared/page_header", title: (@announcement.persisted? ? "Editar anúncio" : "Novo anúncio") %>
+
 <%= render "form" %>

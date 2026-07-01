@@ -1,6 +1,22 @@
 {
+  "__commonjsHelpers-all0t7-T.js": {
+    "file": "assets/_commonjsHelpers-all0t7-T.js",
+    "name": "_commonjsHelpers"
+  },
+  "entrypoints/admin.js": {
+    "file": "assets/admin-_woiCVLn.js",
+    "name": "entrypoints\\admin.js",
+    "src": "entrypoints/admin.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-all0t7-T.js"
+    ],
+    "css": [
+      "assets/admin-Bf4bJ6eu.css"
+    ]
+  },
   "entrypoints/application.css": {
-    "file": "assets/application-CBKmDg_m.css",
+    "file": "assets/application-B2YFetCz.css",
     "src": "entrypoints/application.css",
     "isEntry": true,
     "name": "entrypoints\\application.css",
@@ -9,12 +25,15 @@
     ]
   },
   "entrypoints/inertia.js": {
-    "file": "assets/inertia-BXMPj-0i.js",
+    "file": "assets/inertia-BnHW16eK.js",
     "name": "entrypoints\\inertia.js",
     "src": "entrypoints/inertia.js",
     "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-all0t7-T.js"
+    ],
     "css": [
-      "assets/application-CBKmDg_m.css"
+      "assets/application-B2YFetCz.css"
     ]
   }
 }

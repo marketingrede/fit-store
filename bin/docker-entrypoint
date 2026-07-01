@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
+rm -f /rails/tmp/pids/server.pid
+
 if [ "$1" = "bin/dev" ] || [ "$1" = "/rails/bin/dev" ]; then
-  ./bin/rails db:prepare 2>/dev/null || true
+  timeout --kill-after=5s 60s ./bin/rails db:prepare 2>/dev/null || true
 elif [ "${@: -2:1}" = "./bin/rails" ] && [ "${@: -1:1}" = "server" ]; then
   ./bin/rails db:prepare
 fi

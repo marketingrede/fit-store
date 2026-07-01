@@ -1,8 +1,39 @@
 <% content_for :title, "Presets de variação" %>
 
-<div class="flex justify-between mb-6"><h1 class="text-2xl font-bold">Presets de variação</h1><%= link_to "Novo", new_admin_variation_preset_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %></div>
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm"><thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Nome</th><th class="px-4 py-3">Unidade</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
-    <tbody><% @presets.each do |p| %><tr class="border-b"><td class="px-4 py-3"><%= p.name %></td><td class="px-4 py-3"><%= p.unit %></td><td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_variation_preset_path(p), class: "text-teal-700" %></td></tr><% end %></tbody>
+<%= render "admin/shared/page_header", title: "Presets de variação" do %>
+  <%= link_to new_admin_variation_preset_path, class: "admin-button admin-button--primary" do %>
+    <%= lucide_icon "plus", class: "admin-button__icon" %>
+    <span>Novo preset</span>
+  <% end %>
+<% end %>
+
+<section class="admin-table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Unidade</th>
+        <th>Obrigatório</th>
+        <th>Status</th>
+        <th class="is-actions">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @presets.each do |preset| %>
+        <tr>
+          <td><%= preset.name %></td>
+          <td><%= preset.unit.presence || "—" %></td>
+          <td><%= preset.required? ? "Sim" : "Não" %></td>
+          <td>
+            <span class="admin-status-badge <%= preset.active? ? "is-success" : "is-muted" %>">
+              <%= preset.active? ? "Ativo" : "Inativo" %>
+            </span>
+          </td>
+          <td class="is-actions">
+            <%= link_to "Editar", edit_admin_variation_preset_path(preset), class: "admin-text-link" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
   </table>
-</div>
+</section>

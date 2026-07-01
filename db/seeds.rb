@@ -81,67 +81,10 @@ end
   end
 end
 
-if Product.none?
-  [
-    {
-      name: "Bebida Proteica Pronta (250ml)",
-      category: "alimentos-proteicos",
-      price_fitc: 8,
-      description: "Bebida pronta com 20-30g de proteína por embalagem.",
-      image_url: "https://images.unsplash.com/photo-1693996045300-521e9d08cabc?w=400&auto=format&fit=crop&q=70",
-      tag: "Proteína"
-    },
-    {
-      name: "Porta Número (Corrida)",
-      category: "equipamentos",
-      price_fitc: 10,
-      description: "Suporte para prender número de corrida na roupa.",
-      image_url: "https://images.unsplash.com/photo-1776795279350-491ab63f113a?w=400&auto=format&fit=crop&q=70",
-      tag: "Corrida"
-    },
-    {
-      name: "Protetor Labial com Proteção Solar",
-      category: "protecao-solar",
-      price_fitc: 15,
-      description: "Protetor labial com FPS 30+ e hidratação.",
-      image_url: "https://images.unsplash.com/photo-1630275506439-a4ddf976eebf?w=400&auto=format&fit=crop&q=70",
-      tag: "FPS 30+"
-    },
-    {
-      name: "Vitamina B Complex",
-      category: "vitaminas-minerais",
-      price_fitc: 20,
-      description: "Complexo B completo com B1, B2, B3, B5, B6, B7, B9 e B12.",
-      image_url: "https://images.unsplash.com/photo-1704650311298-4d6915d34c64?w=400&auto=format&fit=crop&q=70",
-      tag: "Vitaminas"
-    },
-    {
-      name: "Bola de Tênis (Tubo com 3)",
-      category: "equipamentos",
-      price_fitc: 20,
-      description: "Conjunto com 3 bolas de tênis de alta qualidade.",
-      image_url: "https://images.unsplash.com/photo-1542144582-1ba00456b5e3?w=400&auto=format&fit=crop&q=70",
-      tag: "Tênis"
-    },
-    {
-      name: "Creatina Monohidratada 100% Pura",
-      category: "creatina-energia",
-      price_fitc: 45,
-      description: "Creatina monohidratada em pó, 100% pura e sem aditivos.",
-      image_url: "https://images.unsplash.com/photo-1704650311298-4d6915d34c64?w=400&auto=format&fit=crop&q=70",
-      tag: "Performance"
-    },
-    {
-      name: "Whey Protein Isolado Concentrado Hidrolisado",
-      category: "proteinas",
-      price_fitc: 150,
-      description: "Proteína de soro do leite em três formas para absorção rápida e máxima síntese proteica.",
-      image_url: "https://images.unsplash.com/photo-1693996045300-521e9d08cabc?w=400&auto=format&fit=crop&q=70",
-      tag: "Whey"
-    }
-  ].each do |attrs|
-    Product.create!(attrs.merge(active: true))
-  end
+load Rails.root.join("db/seeds/legacy_products.rb")
+if Product.count < LEGACY_PRODUCTS.size
+  counts = Legacy::CatalogImporter.call(replace_products: Product.any?)
+  puts "Catálogo legado: #{counts[:products]} produtos importados."
 end
 
 puts "Seeds concluídos: #{User.count} admins, #{Product.count} produtos, #{CatalogCategory.count} categorias."

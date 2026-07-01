@@ -15,7 +15,7 @@ Loja virtual com painel administrativo em **Rails 8 + SQLite + Inertia/Svelte**.
 
 ```bash
 docker compose up --build
-# App: http://localhost:3001  (porta 3001 se 3000 estiver em uso)
+# App: http://localhost:3030
 ```
 
 No Windows, `rails s` local exige WSL2 ou Linux — gems nativas (Puma, etc.) não instalam sem `make`. Use Docker.

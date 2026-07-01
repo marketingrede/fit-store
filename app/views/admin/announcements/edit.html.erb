@@ -1,1 +1,7 @@
+<% content_for :title, "Editar anúncio" %>
+<% content_for :admin_quill, true %>
+<% content_for :admin_cropper, true %>
+
+<%= render "admin/shared/page_header", title: "Editar anúncio", description: @announcement.title %>
+
 <%= render "form" %>

@@ -1,0 +1,43 @@
+<div class="admin-overlay admin-overlay--narrow" id="admin-balance-modal" aria-hidden="true">
+  <div class="admin-modal admin-modal--narrow" role="dialog" aria-modal="true">
+    <div class="admin-modal__header">
+      <h2 data-balance-modal-title>Ajustar saldo FITC</h2>
+      <button type="button" class="admin-modal__close" data-close-modal aria-label="Fechar">
+        <%= lucide_icon "x" %>
+      </button>
+    </div>
+
+    <%= form_with url: admin_adjust_fitc_wallet_path do %>
+      <div class="admin-modal__body admin-form-grid">
+        <div>
+          <label for="balance_employee_id">Colaborador</label>
+          <select id="balance_employee_id" name="employee_id" required>
+            <% employees.each do |emp| %>
+              <option value="<%= emp.id %>"><%= emp.full_name %> (<%= emp.employee_id %>)</option>
+            <% end %>
+          </select>
+        </div>
+        <div>
+          <label for="adjustment_type">Tipo</label>
+          <select id="adjustment_type" name="adjustment_type">
+            <option value="credit">Crédito</option>
+            <option value="debit">Débito</option>
+          </select>
+        </div>
+        <div>
+          <label for="amount">Valor FITC</label>
+          <input id="amount" type="number" name="amount" min="1" required>
+        </div>
+        <div>
+          <label for="description">Descrição</label>
+          <input id="description" type="text" name="description">
+        </div>
+      </div>
+
+      <div class="admin-modal__footer">
+        <button type="button" class="admin-button admin-button--ghost" data-close-modal>Cancelar</button>
+        <button type="submit" class="admin-button admin-button--primary">Confirmar ajuste</button>
+      </div>
+    <% end %>
+  </div>
+</div>

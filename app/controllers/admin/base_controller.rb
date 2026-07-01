@@ -3,6 +3,7 @@
 module Admin
   class BaseController < ApplicationController
     include AdminAuthenticatable
+    include Pagy::Method
 
     layout "admin"
 

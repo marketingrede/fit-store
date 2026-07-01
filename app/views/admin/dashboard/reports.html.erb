@@ -1,0 +1,73 @@
+<% content_for :title, "Relatórios" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1>Relatórios e exportações</h1>
+    <p>Baixe dados da plataforma em CSV para planilhas, BI e análises externas.</p>
+  </div>
+  <div class="admin-page-header__actions">
+    <%= link_to "Dashboard", admin_root_path, class: "admin-button admin-button--ghost" %>
+    <%= link_to "Ver loja", root_path, class: "admin-button admin-button--ghost" %>
+  </div>
+</div>
+
+<section class="admin-hub-grid admin-hub-grid--reports" aria-label="Conjuntos de dados">
+  <% @report_cards.each do |card| %>
+    <%= link_to admin_reports_path(report: card[:key]), class: "admin-hub-card #{card[:key] == @selected_report ? "is-active" : ""}" do %>
+      <span><%= card[:title] %></span>
+      <strong><%= card[:count] %></strong>
+      <small>registro(s)</small>
+    <% end %>
+  <% end %>
+</section>
+
+<div class="admin-report-grid">
+  <section class="admin-card">
+    <div class="admin-card__header">
+      <h2>Configurar exportação</h2>
+    </div>
+    <p class="admin-card__text">Escolha o conjunto e baixe o arquivo CSV com os dados atuais.</p>
+
+    <%= form_with url: admin_reports_path(format: :csv), method: :get, class: "admin-report-form" do %>
+      <label for="report">Conjunto</label>
+      <select id="report" name="report">
+        <%= options_for_select(@report_cards.map { |card| [card[:title], card[:key]] }, @selected_report) %>
+      </select>
+      <label for="from">De</label>
+      <input id="from" type="date" name="from" value="<%= @date_from %>">
+      <label for="to">Até</label>
+      <input id="to" type="date" name="to" value="<%= @date_to %>">
+      <button type="submit" class="admin-button admin-button--primary">Baixar relatório</button>
+    <% end %>
+
+    <p class="admin-file-name"><%= @preview_filename %></p>
+  </section>
+
+  <section class="admin-card">
+    <div class="admin-card__header">
+      <h2>Prévia da exportação</h2>
+    </div>
+    <p class="admin-card__text">Resumo das primeiras linhas do arquivo.</p>
+
+    <div class="admin-preview-table">
+      <table>
+        <thead>
+          <tr>
+            <% @report_headers.each do |header| %>
+              <th><%= header %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% @preview_rows.each do |row| %>
+            <tr>
+              <% row.each do |cell| %>
+                <td><%= cell %></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

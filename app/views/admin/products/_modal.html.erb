@@ -1,0 +1,135 @@
+<div
+  class="admin-overlay"
+  id="admin-product-modal"
+  aria-hidden="true"
+  data-create-url="<%= admin_products_path %>"
+  data-form-data-url="<%= "#{admin_products_path}/:id/form_data" %>"
+>
+  <div class="admin-modal admin-modal--product-form" role="dialog" aria-modal="true" aria-labelledby="admin-product-modal-title">
+    <div class="admin-modal__header">
+      <h2 id="admin-product-modal-title" data-product-modal-title>Novo produto</h2>
+      <button type="button" class="admin-modal__close" data-close-modal aria-label="Fechar">
+        <%= lucide_icon "x", size: 16 %>
+      </button>
+    </div>
+
+    <%= form_with url: admin_products_path, class: "product-form-shell", local: true, data: { product_form: true } do |f| %>
+      <input type="hidden" name="variations_json" value="[]">
+      <%# Filter state preservation %>
+      <input type="hidden" name="_list_q" value="<%= @filters&.dig(:query) %>">
+      <input type="hidden" name="_list_categoria" value="<%= @filters&.dig(:category) %>">
+      <input type="hidden" name="_list_status" value="<%= @filters&.dig(:status) %>">
+      <input type="hidden" name="_list_page" value="<%= @pagy&.page %>">
+
+      <div class="product-form-shell__workspace">
+        <section class="product-form-section">
+          <h3 class="product-form-section__title">Informações do produto</h3>
+          <div class="admin-form-grid">
+            <div>
+              <label for="product_name">Nome</label>
+              <input id="product_name" type="text" name="product[name]" required>
+            </div>
+            <div class="admin-form-grid admin-form-grid--2">
+              <div>
+                <label for="product_category">Categoria</label>
+                <select id="product_category" name="product[category]" required>
+                  <% @categories.each do |category| %>
+                    <option value="<%= category.slug %>"><%= category.label %></option>
+                  <% end %>
+                </select>
+              </div>
+              <div>
+                <label for="product_price_fitc">Preço FITC</label>
+                <input id="product_price_fitc" type="number" name="product[price_fitc]" min="1" required>
+              </div>
+            </div>
+            <div class="admin-form-grid admin-form-grid--2">
+              <div>
+                <label for="product_tag">Tag</label>
+                <input id="product_tag" type="text" name="product[tag]" list="product-tag-options">
+                <datalist id="product-tag-options">
+                  <% @tags.each do |tag| %>
+                    <option value="<%= tag.name %>"></option>
+                  <% end %>
+                </datalist>
+              </div>
+              <div>
+                <label for="product_image_url">URL da imagem</label>
+                <input id="product_image_url" type="url" name="product[image_url]" placeholder="https://...">
+              </div>
+            </div>
+            <div>
+              <label for="product_description">Descrição</label>
+              <textarea id="product_description" name="product[description]" rows="4"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="product-form-section product-variations-admin">
+          <div class="admin-variation-block__header">
+            <h3 class="product-form-section__title">Variações</h3>
+            <button type="button" class="admin-text-link" data-add-variation>+ variação</button>
+          </div>
+          <% if @variation_presets.present? %>
+            <div class="variation-preset-bar">
+              <select id="variationPresetSelect">
+                <option value="">Selecionar preset...</option>
+                <% @variation_presets.each do |preset| %>
+                  <option value="<%= preset.id %>"><%= preset.name %></option>
+                <% end %>
+              </select>
+              <button type="button" class="admin-button admin-button--ghost" id="applyVariationPresetBtn">Aplicar</button>
+            </div>
+          <% end %>
+          <div class="admin-variations-editor" data-variations-editor></div>
+        </section>
+      </div>
+
+      <aside class="product-form-shell__aside">
+        <h3 class="product-form-section__title">Imagem do produto</h3>
+        <div class="media-composer" data-media-composer>
+          <input type="file" accept="image/jpeg,image/png,image/webp" data-composer-file hidden>
+          <div class="media-composer__dropzone" data-composer-dropzone>
+            <%= lucide_icon "image", size: 32 %>
+            <p>Arraste ou clique para adicionar</p>
+          </div>
+          <div class="media-composer__preview" data-composer-preview hidden>
+            <img data-composer-preview-img alt="Preview">
+            <div class="media-composer__actions">
+              <button type="button" class="admin-button admin-button--ghost" data-composer-change>Alterar</button>
+              <button type="button" class="admin-button admin-button--ghost" data-composer-remove>Remover</button>
+            </div>
+          </div>
+        </div>
+        <div data-product-media-preview>
+          <span class="admin-empty-text" data-media-fallback>Sem imagem</span>
+        </div>
+      </aside>
+
+      <div class="product-form-shell__footer">
+        <label class="admin-checkbox-field" for="product_active">
+          <input type="hidden" name="product[active]" value="0">
+          <input id="product_active" type="checkbox" name="product[active]" value="1" checked>
+          Produto ativo na loja
+        </label>
+        <span style="flex:1"></span>
+        <button type="button" class="admin-button admin-button--ghost" data-close-modal>Cancelar</button>
+        <button type="submit" class="admin-button admin-button--primary">Salvar produto</button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="admin-lightbox" id="productImageLightbox" aria-hidden="true">
+  <button type="button" class="admin-lightbox__close" data-lightbox-close aria-label="Fechar">
+    <%= lucide_icon "x", size: 20 %>
+  </button>
+  <button type="button" class="admin-lightbox__nav admin-lightbox__nav--prev" data-lightbox-prev aria-label="Anterior">
+    <%= lucide_icon "chevron-left", size: 24 %>
+  </button>
+  <img class="admin-lightbox__image" data-lightbox-img alt="">
+  <button type="button" class="admin-lightbox__nav admin-lightbox__nav--next" data-lightbox-next aria-label="Próximo">
+    <%= lucide_icon "chevron-right", size: 24 %>
+  </button>
+  <span class="admin-lightbox__counter" data-lightbox-counter></span>
+</div>

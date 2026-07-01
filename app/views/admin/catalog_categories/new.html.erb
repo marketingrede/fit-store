@@ -1,1 +1,5 @@
+<% content_for :title, (@category.persisted? ? "Editar categoria" : "Nova categoria") %>
+
+<%= render "admin/shared/page_header", title: (@category.persisted? ? "Editar categoria" : "Nova categoria") %>
+
 <%= render "form" %>

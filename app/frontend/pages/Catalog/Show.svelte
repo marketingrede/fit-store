@@ -1,24 +1,69 @@
 <script>
+  import { page } from "@inertiajs/svelte"
   import { Link } from "@inertiajs/svelte"
+  import EmployeeLoginModal from "../../components/EmployeeLoginModal.svelte"
+  import ProductPageChrome from "../../components/ProductPageChrome.svelte"
+  import ProductCard from "../../components/ProductCard.svelte"
   import TradeModal from "../../components/TradeModal.svelte"
+  import { submitRedemption } from "../../lib/store-redemption.js"
   import {
     getDefaultSelections,
     resolveProductPresentation,
   } from "../../lib/product-variations.js"
 
-  let { product, categoryLabel = "" } = $props()
+  let {
+    product,
+    related = [],
+    category_label: categoryLabel = "",
+    categories = [],
+  } = $props()
 
   let selections = $state({})
-  let modalOpen = $state(false)
+  let modalOpen = $state(true)
+  let loginModalOpen = $state(false)
+  let loginModalError = $state("")
+
+  let currentEmployee = $derived($page.props.auth?.employee ?? null)
+  let balanceFitc = $derived(currentEmployee?.balance_fitc ?? null)
+  let employeeMode = $derived(Boolean(currentEmployee))
+
+  const categoryLabels = $derived(
+    Object.fromEntries(categories.map((category) => [category.slug, category.label])),
+  )
 
   $effect(() => {
     selections = getDefaultSelections(product)
   })
 
+  $effect(() => {
+    const alert = $page.props.flash?.alert
+    if (!alert || !loginModalOpen) return
+    loginModalError = alert
+  })
+
   let presentation = $derived(resolveProductPresentation(product, selections))
 
-  function chooseOption(attributeId, optionId) {
-    selections = { ...selections, [String(attributeId)]: String(optionId) }
+  function openLoginModal() {
+    loginModalError = ""
+    loginModalOpen = true
+  }
+
+  function closeLoginModal() {
+    loginModalOpen = false
+    loginModalError = ""
+  }
+
+  function handleLoginSuccess() {
+    loginModalError = ""
+    closeLoginModal()
+  }
+
+  function handleLoginRequired() {
+    openLoginModal()
+  }
+
+  function closeModal() {
+    modalOpen = false
   }
 </script>
 
@@ -26,83 +71,76 @@
   <title>{product.name} | Movimenta+ Fit Store</title>
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50">
-  <header class="border-b border-slate-200 bg-white">
-    <div class="mx-auto flex max-w-4xl items-center gap-4 px-4 py-4">
-      <Link href="/" class="text-sm font-medium text-teal hover:underline">&larr; Voltar ao catálogo</Link>
-    </div>
-  </header>
+<div class="fit-store-page">
+  <ProductPageChrome
+    {currentEmployee}
+    {balanceFitc}
+    onLogin={openLoginModal}
+  />
 
-  <main class="mx-auto grid max-w-4xl gap-8 px-4 py-8 lg:grid-cols-2">
-    <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
-      {#if presentation.image_url}
-        <img src={presentation.image_url} alt={product.name} class="aspect-square w-full object-cover" />
-      {:else}
-        <div class="flex aspect-square items-center justify-center bg-slate-100 text-slate-400">
-          Sem imagem
+  <main class="catalog-shell product-show">
+    <div class="product-show__hero">
+      <div class="product-show__media">
+        {#if presentation?.image_url}
+          <img src={presentation.image_url} alt={product.name} />
+        {:else}
+          <span class="product-image__fallback">Sem imagem</span>
+        {/if}
+      </div>
+
+      <div class="product-show__summary">
+        {#if categoryLabel}
+          <p class="product-show__meta">{categoryLabel}</p>
+        {/if}
+        <h1 class="product-show__title">{product.name}</h1>
+        <p class="product-show__price">
+          {presentation?.price_fitc}
+          <span>FITC</span>
+        </p>
+        {#if product.description}
+          <p class="product-show__desc">{product.description}</p>
+        {/if}
+        <button type="button" class="redeem-button product-show__cta" onclick={() => (modalOpen = true)}>
+          {employeeMode ? "Quero trocar meus Fitcoin" : "Entrar para resgatar"}
+        </button>
+      </div>
+    </div>
+
+    {#if related.length}
+      <section class="product-show__related" aria-labelledby="related-title">
+        <h2 id="related-title" class="product-show__related-title">Produtos relacionados</h2>
+        <div class="products-grid">
+          {#each related as item (item.id)}
+            <ProductCard
+              product={item}
+              categoryLabel={categoryLabels[item.category] || item.category}
+              onSelect={() => {
+                window.location.href = `/produto/${item.id}`
+              }}
+            />
+          {/each}
         </div>
-      {/if}
-    </div>
-
-    <div>
-      {#if categoryLabel}
-        <p class="text-xs font-semibold uppercase tracking-wide text-teal">{categoryLabel}</p>
-      {/if}
-      <h1 class="mt-1 text-2xl font-bold text-slate-900">{product.name}</h1>
-
-      {#if product.tag}
-        <span class="mt-2 inline-block rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
-          {product.tag}
-        </span>
-      {/if}
-
-      <p class="mt-4 text-3xl font-bold text-teal">
-        {presentation.price_fitc}
-        <span class="text-base font-normal text-slate-500">FITC</span>
-      </p>
-
-      {#if product.description}
-        <p class="mt-4 text-sm leading-relaxed text-slate-600">{product.description}</p>
-      {/if}
-
-      {#each product.variations || [] as attr (attr.id)}
-        <fieldset class="mt-6">
-          <legend class="mb-2 text-sm font-semibold text-slate-800">
-            {attr.name}
-            {#if attr.unit}
-              <span class="font-normal text-slate-500">({attr.unit})</span>
-            {/if}
-          </legend>
-          <div class="flex flex-wrap gap-2">
-            {#each attr.options || [] as option (option.id)}
-              <label class="cursor-pointer">
-                <input
-                  type="radio"
-                  class="peer sr-only"
-                  name={`variation-${attr.id}`}
-                  checked={selections[String(attr.id)] === String(option.id)}
-                  onchange={() => chooseOption(attr.id, option.id)}
-                />
-                <span
-                  class="inline-block rounded-lg border border-slate-200 px-3 py-1.5 text-sm peer-checked:border-teal peer-checked:bg-teal/10"
-                >
-                  {option.label}
-                </span>
-              </label>
-            {/each}
-          </div>
-        </fieldset>
-      {/each}
-
-      <button
-        type="button"
-        class="mt-8 w-full rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white hover:bg-teal-dark"
-        onclick={() => (modalOpen = true)}
-      >
-        Solicitar resgate
-      </button>
-    </div>
+      </section>
+    {/if}
   </main>
 </div>
 
-<TradeModal product={product} open={modalOpen} onClose={() => (modalOpen = false)} />
+<TradeModal
+  {product}
+  products={[product, ...related]}
+  categoryLabels={categoryLabels}
+  open={modalOpen}
+  {employeeMode}
+  {balanceFitc}
+  onClose={closeModal}
+  onConfirm={submitRedemption}
+  onLoginRequired={handleLoginRequired}
+/>
+
+<EmployeeLoginModal
+  open={loginModalOpen}
+  error={loginModalError}
+  returnTo={`/produto/${product.id}`}
+  onClose={closeLoginModal}
+  onSuccess={handleLoginSuccess}
+/>

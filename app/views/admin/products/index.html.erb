@@ -1,34 +1,126 @@
 <% content_for :title, "Produtos" %>
 
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Produtos</h1>
-  <%= link_to "Novo produto", new_admin_product_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm hover:bg-slate-800" %>
+<div
+  data-admin-products
+  data-create-url="<%= admin_products_path %>"
+  data-form-data-url="<%= "#{admin_products_path}/:id/form_data" %>"
+>
+  <%= render "admin/shared/page_header", title: "Produtos", description: "#{@products_count} produto(s) encontrado(s) de #{@product_totals[:total]} cadastrados." do %>
+    <%= link_to new_admin_product_path, class: "admin-button admin-button--primary" do %>
+      <%= lucide_icon "plus", class: "admin-button__icon" %>
+      <span>Novo produto</span>
+    <% end %>
+    <button type="button" class="admin-button admin-button--ghost" data-open-product-modal>
+      <%= lucide_icon "zap", class: "admin-button__icon" %>
+      <span>Modal rápido</span>
+    </button>
+  <% end %>
+
+  <section class="admin-filter-card" aria-label="Filtros de produtos">
+    <%= form_with url: admin_products_path, method: :get, class: "admin-filter-form" do %>
+      <div>
+        <label for="query">Buscar produto</label>
+        <input id="query" type="search" name="query" value="<%= @filters[:query] %>" placeholder="Nome ou descrição">
+      </div>
+      <div>
+        <label for="category">Categoria</label>
+        <select id="category" name="category">
+          <%= options_for_select([["Todas", ""]] + @categories.map { |category| [category.label, category.slug] }, @filters[:category]) %>
+        </select>
+      </div>
+      <div>
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <%= options_for_select([["Todos", ""], ["Ativos", "active"], ["Inativos", "inactive"]], @filters[:status]) %>
+        </select>
+      </div>
+      <div>
+        <label for="per_page">Itens por página</label>
+        <select id="per_page" name="per_page">
+          <%= options_for_select([15, 30, 50], @pagy.limit) %>
+        </select>
+      </div>
+      <button type="submit" class="admin-button admin-button--primary">Filtrar</button>
+    <% end %>
+  </section>
+
+  <section class="admin-table-card">
+    <div class="admin-bulk-bar" data-bulk-bar>
+      <span class="admin-bulk-bar__count" data-bulk-count>0 selecionado(s)</span>
+      <%= form_with url: bulk_admin_products_path, method: :post, data: { bulk_form: true }, class: "admin-bulk-bar__actions" do %>
+        <button type="submit" name="bulk_action" value="activate" class="admin-button admin-button--ghost">Ativar</button>
+        <button type="submit" name="bulk_action" value="deactivate" class="admin-button admin-button--ghost">Desativar</button>
+        <button type="submit" name="bulk_action" value="delete" class="admin-button admin-button--ghost" data-turbo-confirm="Excluir produtos selecionados?">Excluir</button>
+      <% end %>
+    </div>
+
+    <div class="admin-table-card__summary">
+      <span><strong><%= @product_totals[:active] %></strong> ativos</span>
+      <span><strong><%= @product_totals[:inactive] %></strong> inativos</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" class="admin-table-checkbox" data-select-all-products aria-label="Selecionar todos"></th>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Categoria</th>
+          <th>Tag</th>
+          <th class="is-numeric">FITC</th>
+          <th>Status</th>
+          <th class="is-actions">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <tr>
+            <td><input type="checkbox" class="admin-table-checkbox" data-product-select value="<%= product.id %>" aria-label="Selecionar <%= product.name %>"></td>
+            <td><%= product.id %></td>
+            <td>
+              <div class="admin-product-cell">
+                <% if product.image_url.present? %>
+                  <%= image_tag product.image_url, alt: "", class: "admin-product-cell__image", loading: "lazy" %>
+                <% else %>
+                  <span class="admin-product-cell__image admin-product-cell__image--empty" aria-hidden="true"></span>
+                <% end %>
+                <span>
+                  <strong><%= product.name %></strong>
+                  <small><%= truncate(product.description.to_s, length: 72) %></small>
+                </span>
+              </div>
+            </td>
+            <td><%= product.category %></td>
+            <td><%= product.tag.presence || "Sem tag" %></td>
+            <td class="is-numeric"><%= product.price_fitc %></td>
+            <td>
+              <span class="admin-status-badge <%= product.active? ? "is-success" : "is-muted" %>">
+                <%= product.active? ? "Ativo" : "Inativo" %>
+              </span>
+            </td>
+            <td class="is-actions">
+              <%= link_to "Editar", edit_admin_product_path(product), class: "admin-text-link" %>
+              <button type="button" class="admin-text-link" data-edit-product="<%= product.id %>">Modal</button>
+              <%= button_to "Excluir", admin_product_path(product), method: :delete, form: { data: { turbo_confirm: "Excluir produto?" } }, class: "admin-danger-link" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @products.empty? %>
+      <p class="admin-empty-text">Nenhum produto encontrado com estes filtros.</p>
+    <% end %>
+
+    <% if @pagy.last > 1 %>
+      <nav class="admin-pagination" aria-label="Paginação de produtos">
+        <span>Página <%= @pagy.page %> de <%= @pagy.last %></span>
+        <div class="admin-pagination__links">
+          <%== @pagy.series_nav %>
+        </div>
+      </nav>
+    <% end %>
+  </section>
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b">
-      <tr>
-        <th class="text-left px-4 py-3">Nome</th>
-        <th class="text-left px-4 py-3">Categoria</th>
-        <th class="text-right px-4 py-3">Preço FITC</th>
-        <th class="text-center px-4 py-3">Ativo</th>
-        <th class="text-right px-4 py-3">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @products.each do |product| %>
-        <tr class="border-b border-slate-100">
-          <td class="px-4 py-3"><%= product.name %></td>
-          <td class="px-4 py-3"><%= product.category %></td>
-          <td class="px-4 py-3 text-right"><%= product.price_fitc %></td>
-          <td class="px-4 py-3 text-center"><%= product.active? ? "Sim" : "Não" %></td>
-          <td class="px-4 py-3 text-right space-x-2">
-            <%= link_to "Editar", edit_admin_product_path(product), class: "text-teal-700 hover:underline" %>
-            <%= button_to "Excluir", admin_product_path(product), method: :delete, form: { data: { turbo_confirm: "Excluir produto?" } }, class: "text-red-600 hover:underline inline" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+<%= render "modal" %>

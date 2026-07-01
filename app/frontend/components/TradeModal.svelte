@@ -1,4 +1,18 @@
 <script>
+  import { tick } from "svelte"
+  import {
+    animateBackdropIn,
+    animateBackdropOut,
+    animateModalOut,
+    resetMediaExpanded,
+    setMediaExpanded,
+  } from "../lib/product-modal-motion.js"
+  import {
+    animateCardDragRelease,
+    applyCardDragTransform,
+    clearCardDragStyles,
+    runTinderGalleryTransition,
+  } from "../lib/product-modal-transitions.js"
   import {
     formatSelectionSummary,
     getDefaultSelections,
@@ -8,193 +22,520 @@
 
   let {
     product = null,
+    products = [],
+    categoryLabels = {},
     open = false,
     employeeMode = false,
     balanceFitc = null,
     onClose = () => {},
     onConfirm = null,
+    onLoginRequired = () => {},
   } = $props()
 
+  let activeProduct = $state(null)
   let selections = $state({})
   let step = $state("detail")
   let error = $state("")
+  let mediaExpanded = $state(false)
+  let cardShellElement = $state(null)
+  let cardBodyElement = $state(null)
+  let backdropElement = $state(null)
+  let visible = $state(false)
+  let closing = $state(false)
+  let galleryTransitioning = $state(false)
+  let navDirection = $state(1)
+  let touchStartX = $state(0)
+  let touchStartY = $state(0)
+  let dragOffsetX = $state(0)
+  let isDraggingCard = $state(false)
+  let confirming = $state(false)
+  let idempotencyKey = $state("")
 
   $effect(() => {
     if (open && product) {
-      selections = getDefaultSelections(product)
-      step = "detail"
-      error = ""
+      void showModal(product)
+    } else if (!open && visible && !closing) {
+      void requestClose()
     }
   })
 
-  let presentation = $derived(product ? resolveProductPresentation(product, selections) : null)
-  let summaryLines = $derived(product ? formatSelectionSummary(product, selections) : [])
+  $effect(() => {
+    if (!visible || typeof document === "undefined") return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  })
+
+  let galleryProducts = $derived(products.length ? products : activeProduct ? [activeProduct] : [])
+  let activeIndex = $derived(
+    galleryProducts.findIndex((item) => String(item.id) === String(activeProduct?.id)),
+  )
+  let canNavigate = $derived(galleryProducts.length > 1 && activeIndex >= 0)
+  let presentation = $derived(
+    activeProduct ? resolveProductPresentation(activeProduct, selections) : null,
+  )
+  let summaryLines = $derived(
+    activeProduct ? formatSelectionSummary(activeProduct, selections) : [],
+  )
+  let categoryLabel = $derived(
+    categoryLabels[activeProduct?.category] || activeProduct?.category || "",
+  )
+  let hasEnoughBalance = $derived(
+    !employeeMode ||
+      balanceFitc == null ||
+      Number(balanceFitc) >= Number(presentation?.price_fitc || 0),
+  )
+
+  async function showModal(nextProduct) {
+    closing = false
+    activeProduct = nextProduct
+    selections = getDefaultSelections(nextProduct)
+    step = "detail"
+    error = ""
+    mediaExpanded = false
+    idempotencyKey = ""
+    visible = true
+
+    await tick()
+    cardShellElement?.focus()
+
+    await animateBackdropIn(backdropElement)
+  }
+
+  async function requestClose() {
+    if (!visible || closing) return
+
+    closing = true
+    resetMediaExpanded()
+
+    await Promise.all([
+      animateBackdropOut(backdropElement),
+      animateModalOut(cardShellElement),
+    ])
+
+    visible = false
+    closing = false
+    activeProduct = null
+    mediaExpanded = false
+    step = "detail"
+    error = ""
+    onClose()
+  }
 
   function chooseOption(attributeId, optionId) {
     selections = { ...selections, [String(attributeId)]: String(optionId) }
   }
 
+  function selectProductAt(index) {
+    const nextProduct = galleryProducts[index]
+    if (!nextProduct) return
+
+    resetMediaExpanded()
+    activeProduct = nextProduct
+    selections = getDefaultSelections(nextProduct)
+    step = "detail"
+    error = ""
+    mediaExpanded = false
+    idempotencyKey = ""
+  }
+
+  async function moveProduct(delta) {
+    if (!canNavigate || galleryTransitioning || mediaExpanded || step !== "detail") return
+
+    const nextIndex = (activeIndex + delta + galleryProducts.length) % galleryProducts.length
+    if (nextIndex === activeIndex) return
+
+    navDirection = delta > 0 ? 1 : -1
+    galleryTransitioning = true
+    resetMediaExpanded()
+
+    const startX = isDraggingCard ? dragOffsetX : 0
+    isDraggingCard = false
+    dragOffsetX = 0
+
+    try {
+      await runTinderGalleryTransition(
+        cardShellElement,
+        navDirection,
+        startX,
+        async () => {
+          selectProductAt(nextIndex)
+          await tick()
+        },
+      )
+    } finally {
+      galleryTransitioning = false
+      clearCardDragStyles(cardShellElement)
+      dragOffsetX = 0
+      isDraggingCard = false
+    }
+  }
+
+  function handleCardTouchStart(event) {
+    if (!canNavigate || step !== "detail" || galleryTransitioning) return
+
+    touchStartX = event.touches[0]?.clientX ?? 0
+    touchStartY = event.touches[0]?.clientY ?? 0
+    dragOffsetX = 0
+    isDraggingCard = false
+  }
+
+  function handleCardTouchMove(event) {
+    if (!canNavigate || galleryTransitioning || mediaExpanded || step !== "detail") return
+
+    const touch = event.touches[0]
+    if (!touch) return
+
+    const deltaX = touch.clientX - touchStartX
+    const deltaY = touch.clientY - touchStartY
+
+    if (!isDraggingCard) {
+      if (Math.abs(deltaY) > Math.abs(deltaX)) return
+      if (Math.abs(deltaX) < 10) return
+      isDraggingCard = true
+    }
+
+    event.preventDefault()
+    dragOffsetX = deltaX
+    applyCardDragTransform(cardShellElement, deltaX)
+  }
+
+  async function handleCardTouchEnd(event) {
+    if (!canNavigate || galleryTransitioning || mediaExpanded || step !== "detail") return
+
+    if (isDraggingCard) {
+      const threshold = 72
+
+      if (Math.abs(dragOffsetX) >= threshold) {
+        await moveProduct(dragOffsetX < 0 ? 1 : -1)
+        return
+      }
+
+      await animateCardDragRelease(cardShellElement, dragOffsetX)
+      dragOffsetX = 0
+      isDraggingCard = false
+      return
+    }
+
+    const touch = event.changedTouches[0]
+    if (!touch) return
+
+    const deltaX = touch.clientX - touchStartX
+    const deltaY = touch.clientY - touchStartY
+
+    if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY)) return
+
+    await moveProduct(deltaX < 0 ? 1 : -1)
+  }
+
+  async function toggleMediaExpanded() {
+    if (!cardBodyElement) return
+
+    const nextExpanded = !mediaExpanded
+
+    if (nextExpanded) {
+      mediaExpanded = true
+    }
+
+    await setMediaExpanded(cardBodyElement, nextExpanded)
+    mediaExpanded = nextExpanded
+  }
+
   function goToConfirm() {
-    if (!product) return
-    const result = validateSelections(product, selections)
+    if (!activeProduct) return
+
+    const result = validateSelections(activeProduct, selections)
     if (!result.ok) {
       error = result.error
       return
     }
+
+    if (!employeeMode) {
+      onLoginRequired()
+      return
+    }
+
+    if (!hasEnoughBalance) {
+      error = "Saldo insuficiente para este resgate."
+      return
+    }
+
+    idempotencyKey ||= generateIdempotencyKey()
     error = ""
     step = "confirm"
   }
 
-  function handleConfirm() {
-    if (onConfirm) {
-      onConfirm({ product, selections, presentation })
-    } else {
+  async function handleConfirm() {
+    if (!onConfirm) return
+
+    confirming = true
+    error = ""
+
+    try {
+      await onConfirm({ product: activeProduct, selections, presentation, idempotencyKey })
       step = "success"
+    } catch (caught) {
+      error = caught?.message || "Não foi possível concluir o resgate."
+      step = "detail"
+    } finally {
+      confirming = false
     }
   }
 
   function handleBackdropClick(event) {
-    if (event.target === event.currentTarget) onClose()
+    const isOverlay = event.target === event.currentTarget
+    const isBackdrop = event.target?.classList?.contains("product-modal-backdrop")
+    if (isOverlay || isBackdrop) void requestClose()
+  }
+
+  function handleWindowKeydown(event) {
+    if (!visible) return
+
+    if (event.key === "Escape") {
+      event.preventDefault()
+      void requestClose()
+      return
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault()
+      void moveProduct(-1)
+      return
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault()
+      void moveProduct(1)
+    }
+  }
+
+  function generateIdempotencyKey() {
+    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID()
+
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`
   }
 </script>
 
-{#if open && product}
+<svelte:window onkeydown={handleWindowKeydown} />
+
+{#if visible && activeProduct}
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    class="modal-overlay modal-overlay--product"
     role="presentation"
+    aria-hidden={!visible}
     onclick={handleBackdropClick}
   >
     <div
-      class="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="trade-modal-title"
-    >
-      {#if step === "detail"}
-        <h2 id="trade-modal-title" class="text-lg font-bold text-slate-900">{product.name}</h2>
+      class="product-modal-backdrop is-visible"
+      aria-hidden="true"
+      bind:this={backdropElement}
+    ></div>
 
-        {#if presentation?.image_url}
-          <img
-            src={presentation.image_url}
-            alt={product.name}
-            class="mt-4 w-full rounded-lg object-cover"
-          />
-        {/if}
+    <div class="product-modal-stage">
+      {#if canNavigate}
+        <button
+          type="button"
+          class="product-modal__nav product-modal__nav--prev"
+          aria-label="Produto anterior"
+          disabled={galleryTransitioning}
+          onclick={() => moveProduct(-1)}
+        >
+          <span aria-hidden="true">&lsaquo;</span>
+        </button>
+      {/if}
 
-        <p class="mt-3 text-xl font-bold text-teal">
-          {presentation?.price_fitc}
-          <span class="text-sm font-normal text-slate-500">FITC</span>
-        </p>
+      <div class="product-modal-shell" role="presentation">
+          <div class="product-modal-card-viewport">
+              <div
+                class={`modal modal--product modal--product-card ${galleryTransitioning ? "is-gallery-transitioning" : ""} ${isDraggingCard ? "is-card-dragging" : ""}`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="trade-modal-title"
+                tabindex="-1"
+                bind:this={cardShellElement}
+                ontouchstart={handleCardTouchStart}
+                ontouchmove={handleCardTouchMove}
+                ontouchend={handleCardTouchEnd}
+              >
+          <button
+            type="button"
+            class="product-modal__close"
+            aria-label="Fechar detalhes do produto"
+            onclick={() => requestClose()}
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
 
-        {#if product.description}
-          <p class="mt-3 text-sm leading-relaxed text-slate-600">{product.description}</p>
-        {/if}
-
-        {#if employeeMode && balanceFitc != null}
-          <p class="mt-2 text-sm text-slate-500">
-            Seu saldo: <strong class="text-slate-700">{balanceFitc} FITC</strong>
-          </p>
-        {/if}
-
-        {#each product.variations || [] as attr (attr.id)}
-          <fieldset class="mt-4">
-            <legend class="mb-2 text-sm font-semibold text-slate-800">
-              {attr.name}
-              {#if attr.unit}
-                <span class="font-normal text-slate-500">({attr.unit})</span>
+              <article
+                class={`product-modal-card ${mediaExpanded ? "is-media-expanded" : ""}`}
+                bind:this={cardBodyElement}
+              >
+            <button
+              type="button"
+              class="product-modal-card__media"
+              aria-label={mediaExpanded ? "Recolher imagem do produto" : "Ampliar imagem do produto"}
+              aria-pressed={mediaExpanded}
+              onclick={() => toggleMediaExpanded()}
+            >
+              {#if presentation?.image_url}
+                <img src={presentation.image_url} alt={activeProduct.name} />
+              {:else}
+                <span class="product-image__fallback">Sem imagem</span>
               {/if}
-              {#if !attr.required}
-                <span class="font-normal text-slate-400">(opcional)</span>
+              <span class="product-modal-card__media-badge">
+                {mediaExpanded ? "Recolher" : "Ampliar"}
+              </span>
+              <span class="product-modal-card__media-watermark">
+                Imagens meramente ilustrativas
+              </span>
+            </button>
+
+            <div class="product-modal-card__body">
+              {#if step === "detail"}
+                <div class="product-modal-card__details">
+                  {#if activeProduct.tag}
+                    <p class="product-modal-card__meta">Tag: {activeProduct.tag}</p>
+                  {:else if categoryLabel}
+                    <p class="product-modal-card__meta">{categoryLabel}</p>
+                  {/if}
+
+                  <h2 id="trade-modal-title" class="product-modal-card__title">
+                    {activeProduct.name}
+                  </h2>
+
+                  {#if activeProduct.description}
+                    <p class="product-modal-card__desc">{activeProduct.description}</p>
+                  {/if}
+
+                  <p class="product-modal-card__price">
+                    {presentation?.price_fitc}
+                    <span>FITC</span>
+                  </p>
+
+                  {#if employeeMode && balanceFitc != null}
+                    <p class="product-modal-card__hint">
+                      Seu saldo: <strong>{balanceFitc} FITC</strong>
+                    </p>
+                  {:else}
+                    <p class="product-modal-card__hint">
+                      Escolha as opções disponíveis e confirme o resgate com seu saldo Fitcoin.
+                    </p>
+                  {/if}
+
+                  {#each activeProduct.variations || [] as attr (attr.id)}
+                    <fieldset class="product-variation">
+                      <legend class="product-variation__label">
+                        {attr.name}
+                        {#if attr.unit}
+                          <span class="product-variation__unit">({attr.unit})</span>
+                        {/if}
+                        {#if attr.required}
+                          <span class="product-variation__required" aria-hidden="true">*</span>
+                        {:else}
+                          <span class="product-variation__optional">(opcional)</span>
+                        {/if}
+                      </legend>
+                      <div class="product-variation__options" role="radiogroup" aria-label={attr.name}>
+                        {#each attr.options || [] as option (option.id)}
+                          <label class="product-variation__option">
+                            <input
+                              type="radio"
+                              class="sr-only"
+                              name={`variation-${activeProduct.id}-${attr.id}`}
+                              value={option.id}
+                              checked={selections[String(attr.id)] === String(option.id)}
+                              onchange={() => chooseOption(attr.id, option.id)}
+                            />
+                            <span>{option.label}</span>
+                          </label>
+                        {/each}
+                      </div>
+                    </fieldset>
+                  {/each}
+
+                  {#if error}
+                    <p class="product-modal-card__error" role="alert">{error}</p>
+                  {/if}
+                </div>
+
+                <div class="product-modal-card__cta">
+                  <button type="button" class="redeem-button" onclick={goToConfirm}>
+                    {employeeMode ? "Quero trocar meus Fitcoin" : "Entrar para resgatar"}
+                  </button>
+                  <p class="cta-helper">
+                    {#if employeeMode}
+                      Ao confirmar, o saldo é debitado e o pedido fica registrado.
+                    {:else}
+                      Faça login com sua matrícula para resgatar com saldo FITC.
+                    {/if}
+                  </p>
+                </div>
+              {:else if step === "confirm"}
+                <div class="product-modal-card__details">
+                  <p class="product-modal-card__meta">Confirmação</p>
+                  <h2 id="trade-modal-title" class="product-modal-card__title">Confirmar resgate</h2>
+                  <p class="product-modal-card__desc">
+                    Você está resgatando <strong>{activeProduct.name}</strong> por
+                    <strong>{presentation?.price_fitc} FITC</strong>.
+                  </p>
+
+                  {#if summaryLines.length}
+                    <ul class="selection-summary" aria-label="Opções escolhidas">
+                      {#each summaryLines as line (line)}
+                        <li>{line}</li>
+                      {/each}
+                    </ul>
+                  {/if}
+                </div>
+
+                <div class="product-modal-card__cta product-modal-card__cta--split">
+                  <button type="button" class="secondary-button" onclick={() => (step = "detail")}>
+                    Voltar
+                  </button>
+                  <button type="button" class="redeem-button" disabled={confirming} onclick={handleConfirm}>
+                    {confirming ? "Processando..." : "Confirmar resgate"}
+                  </button>
+                </div>
+              {:else}
+                <div class="product-modal-card__details product-modal-card__details--center">
+                  <p class="success-mark" aria-hidden="true">OK</p>
+                  <h2 id="trade-modal-title" class="product-modal-card__title">Resgate registrado</h2>
+                  <p class="product-modal-card__desc">
+                    Em breve você receberá a confirmação por e-mail.
+                  </p>
+                </div>
+
+                <div class="product-modal-card__cta">
+                  <button type="button" class="redeem-button" onclick={() => requestClose()}>
+                    Fechar
+                  </button>
+                </div>
               {/if}
-            </legend>
-            <div class="flex flex-wrap gap-2">
-              {#each attr.options || [] as option (option.id)}
-                <label class="cursor-pointer">
-                  <input
-                    type="radio"
-                    class="peer sr-only"
-                    name={`variation-${attr.id}`}
-                    value={option.id}
-                    checked={selections[String(attr.id)] === String(option.id)}
-                    onchange={() => chooseOption(attr.id, option.id)}
-                  />
-                  <span
-                    class="inline-block rounded-lg border border-slate-200 px-3 py-1.5 text-sm peer-checked:border-teal peer-checked:bg-teal/10 peer-checked:text-teal-dark"
-                  >
-                    {option.label}
-                  </span>
-                </label>
-              {/each}
             </div>
-          </fieldset>
-        {/each}
+          </article>
+              </div>
+          </div>
+      </div>
 
-        {#if error}
-          <p class="mt-3 text-sm text-red-600" role="alert">{error}</p>
-        {/if}
-
-        <div class="mt-6 flex gap-3">
-          <button
-            type="button"
-            class="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-            onclick={onClose}
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            class="flex-1 rounded-lg bg-teal px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark"
-            onclick={goToConfirm}
-          >
-            Continuar
-          </button>
-        </div>
-      {:else if step === "confirm"}
-        <h2 class="text-lg font-bold text-slate-900">Confirmar resgate</h2>
-        <p class="mt-2 text-sm text-slate-600">
-          Você está resgatando <strong>{product.name}</strong> por
-          <strong class="text-teal">{presentation?.price_fitc} FITC</strong>.
-        </p>
-
-        {#if summaryLines.length}
-          <ul class="mt-3 space-y-1 text-sm text-slate-600">
-            {#each summaryLines as line}
-              <li>{line}</li>
-            {/each}
-          </ul>
-        {/if}
-
-        <div class="mt-6 flex gap-3">
-          <button
-            type="button"
-            class="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-            onclick={() => (step = "detail")}
-          >
-            Voltar
-          </button>
-          <button
-            type="button"
-            class="flex-1 rounded-lg bg-teal px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark"
-            onclick={handleConfirm}
-          >
-            Confirmar resgate
-          </button>
-        </div>
-      {:else}
-        <div class="py-4 text-center">
-          <p class="text-lg font-bold text-green-600">Resgate registrado!</p>
-          <p class="mt-2 text-sm text-slate-600">
-            Em breve você receberá a confirmação por e-mail.
-          </p>
-          <button
-            type="button"
-            class="mt-6 rounded-lg bg-teal px-6 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark"
-            onclick={onClose}
-          >
-            Fechar
-          </button>
-        </div>
+      {#if canNavigate}
+        <button
+          type="button"
+          class="product-modal__nav product-modal__nav--next"
+          aria-label="Próximo produto"
+          disabled={galleryTransitioning}
+          onclick={() => moveProduct(1)}
+        >
+          <span aria-hidden="true">&rsaquo;</span>
+        </button>
       {/if}
     </div>
+
+    {#if canNavigate}
+      <p class="product-modal__swipe-hint">Deslize ou use as setas para trocar</p>
+    {/if}
   </div>
 {/if}

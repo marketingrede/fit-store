@@ -1,10 +1,39 @@
-<h1 class="text-2xl font-bold mb-6"><%= @preset.persisted? ? "Editar preset" : "Novo preset" %></h1>
-<%= form_with model: [:admin, @preset], class: "max-w-xl space-y-4 bg-white rounded-xl border p-6" do |f| %>
-  <div><%= f.label :name %><%= f.text_field :name, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
-  <div><%= f.label :unit, "Unidade" %><%= f.text_field :unit, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
-  <div><%= f.label :options_json, "Opções (JSON)" %><%= f.text_area :options_json, rows: 4, class: "w-full border rounded-lg px-3 py-2 mt-1 font-mono text-sm" %></div>
-  <div><%= f.label :sort_order, "Ordem" %><%= f.number_field :sort_order, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
-  <div><%= f.label :required, class: "inline-flex gap-2 items-center" do %><%= f.check_box :required %> Obrigatório<% end %></div>
-  <div><%= f.label :active, class: "inline-flex gap-2 items-center" do %><%= f.check_box :active %> Ativo<% end %></div>
-  <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2" %>
+<%= form_with model: [:admin, @preset], class: "admin-form-card" do |f| %>
+  <%= admin_form_errors(@preset) %>
+
+  <div class="admin-form-grid">
+    <div>
+      <%= f.label :name, "Nome" %>
+      <%= f.text_field :name %>
+    </div>
+    <div>
+      <%= f.label :unit, "Unidade" %>
+      <%= f.text_field :unit %>
+    </div>
+    <div>
+      <%= f.label :options_json, "Opções (JSON)" %>
+      <%= f.text_area :options_json, rows: 5 %>
+    </div>
+    <div>
+      <%= f.label :sort_order, "Ordem" %>
+      <%= f.number_field :sort_order, min: 0 %>
+    </div>
+    <div>
+      <%= f.label :required, class: "admin-checkbox-field" do %>
+        <%= f.check_box :required %>
+        <span>Obrigatório</span>
+      <% end %>
+    </div>
+    <div>
+      <%= f.label :active, class: "admin-checkbox-field" do %>
+        <%= f.check_box :active %>
+        <span>Ativo</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="admin-form-actions">
+    <%= f.submit "Salvar", class: "admin-button admin-button--primary" %>
+    <%= link_to "Cancelar", admin_variation_presets_path, class: "admin-button admin-button--ghost" %>
+  </div>
 <% end %>

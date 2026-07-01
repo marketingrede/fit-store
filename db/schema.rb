@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_06_25_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_01_133000) do
   create_table "announcements", force: :cascade do |t|
     t.text "content_html"
     t.datetime "created_at", null: false
@@ -159,6 +159,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_06_25_100000) do
     t.datetime "created_at", null: false
     t.integer "employee_id", null: false
     t.text "fulfillment_notes"
+    t.string "idempotency_key"
     t.integer "ledger_debit_id"
     t.integer "product_id"
     t.string "product_name", null: false
@@ -167,6 +168,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_06_25_100000) do
     t.string "status", default: "confirmed", null: false
     t.datetime "updated_at", null: false
     t.index ["employee_id", "created_at"], name: "index_trade_orders_on_employee_id_and_created_at"
+    t.index ["employee_id", "idempotency_key"], name: "index_trade_orders_on_employee_id_and_idempotency_key", unique: true, where: "idempotency_key IS NOT NULL"
     t.index ["employee_id"], name: "index_trade_orders_on_employee_id"
     t.index ["ledger_debit_id"], name: "index_trade_orders_on_ledger_debit_id"
     t.index ["product_id"], name: "index_trade_orders_on_product_id"

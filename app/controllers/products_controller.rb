@@ -3,19 +3,18 @@
 class ProductsController < ApplicationController
   include CatalogFilterable
 
-  layout "store"
+  layout "application"
 
   def show
     @product = Product.active.includes(product_attributes: :product_attribute_options).find(params[:id])
-    @page_props = {
-      product: serialize_product(@product),
-      related: related_products.map { |p| serialize_product(p) }
-    }
+    category = CatalogCategory.active.find_by(slug: @product.category)
 
-    respond_to do |format|
-      format.html
-      format.json { render json: @page_props.merge(inertia_share) }
-    end
+    render inertia: "Catalog/Show", props: {
+      product: serialize_product(@product),
+      related: related_products.map { |p| serialize_product(p) },
+      category_label: category&.label || @product.category,
+      categories: CatalogCategory.active.ordered.map { |c| c.slice(:slug, :label) }
+    }
   end
 
   private

@@ -1,0 +1,16 @@
+<% if flash[:notice].present? || flash[:alert].present? %>
+  <div class="admin-flash-stack" role="status" aria-live="polite">
+    <% if flash[:notice].present? %>
+      <div class="admin-flash admin-flash--notice">
+        <%= lucide_icon "circle-check", class: "admin-flash__icon" %>
+        <span><%= flash[:notice] %></span>
+      </div>
+    <% end %>
+    <% if flash[:alert].present? %>
+      <div class="admin-flash admin-flash--alert" role="alert">
+        <%= lucide_icon "circle-alert", class: "admin-flash__icon" %>
+        <span><%= flash[:alert] %></span>
+      </div>
+    <% end %>
+  </div>
+<% end %>

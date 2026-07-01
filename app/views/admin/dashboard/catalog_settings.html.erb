@@ -1,0 +1,35 @@
+<% content_for :title, "Configurações do catálogo" %>
+
+<div class="admin-page-header">
+  <div>
+    <h1>Configurações do catálogo</h1>
+    <p>Organize filtros, etiquetas, variações e cards de destaque da loja.</p>
+  </div>
+  <%= link_to "Ver loja", root_path, class: "admin-button admin-button--ghost" %>
+</div>
+
+<section class="admin-hub-grid" aria-label="Áreas de configuração">
+  <%= link_to admin_catalog_categories_path, class: "admin-hub-card" do %>
+    <span>Categorias</span>
+    <strong><%= @catalog_summary[:active_categories] %></strong>
+    <small>Filtros principais do catálogo</small>
+  <% end %>
+
+  <%= link_to admin_catalog_tags_path, class: "admin-hub-card" do %>
+    <span>Tags (badges)</span>
+    <strong><%= @catalog_summary[:active_tags] %></strong>
+    <small>Etiquetas nos cards de produto</small>
+  <% end %>
+
+  <%= link_to admin_variation_presets_path, class: "admin-hub-card" do %>
+    <span>Variações</span>
+    <strong><%= @catalog_summary[:active_variations] %></strong>
+    <small>Presets reutilizáveis</small>
+  <% end %>
+
+  <%= link_to admin_catalog_cta_cards_path, class: "admin-hub-card" do %>
+    <span>Cards CTA</span>
+    <strong><%= @catalog_summary[:active_cta_cards] %></strong>
+    <small>Destaques do grid público</small>
+  <% end %>
+</section>

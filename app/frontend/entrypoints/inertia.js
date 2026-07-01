@@ -12,7 +12,7 @@ createInertiaApp({
       console.error(`Componente Inertia ausente: '${name}.svelte'`)
     }
 
-    return page?.default
+    return page
   },
   setup({ el, App, props }) {
     if (el) {

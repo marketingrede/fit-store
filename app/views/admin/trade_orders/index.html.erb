@@ -1,34 +1,53 @@
-<% content_for :title, "Pedidos" %>
+<% content_for :title, "Pedidos de resgate" %>
 
-<h1 class="text-2xl font-bold mb-6">Pedidos de resgate</h1>
+<%= render "admin/shared/page_header", title: "Pedidos de resgate" %>
 
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b">
+<section class="admin-filter-card" aria-label="Filtro de status">
+  <%= form_with url: admin_trade_orders_path, method: :get, class: "admin-filter-form" do %>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <%= options_for_select([["Todos", ""]] + TradeOrder.distinct.pluck(:status).compact.sort.map { |s| [s.humanize, s] }, @status_filter) %>
+      </select>
+    </div>
+    <button type="submit" class="admin-button admin-button--primary">Filtrar</button>
+  <% end %>
+</section>
+
+<section class="admin-table-card">
+  <table>
+    <thead>
       <tr>
-        <th class="text-left px-4 py-3">Data</th>
-        <th class="text-left px-4 py-3">Colaborador</th>
-        <th class="text-left px-4 py-3">Produto</th>
-        <th class="text-right px-4 py-3">FITC</th>
-        <th class="text-left px-4 py-3">Status</th>
-        <th class="text-right px-4 py-3">Ações</th>
+        <th>#</th>
+        <th>Data</th>
+        <th>Colaborador</th>
+        <th>Produto</th>
+        <th class="is-numeric">FITC</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
       <% @orders.each do |order| %>
-        <tr class="border-b">
-          <td class="px-4 py-3"><%= l(order.created_at, format: :short) %></td>
-          <td class="px-4 py-3"><%= order.employee.full_name %></td>
-          <td class="px-4 py-3"><%= order.product_name %></td>
-          <td class="px-4 py-3 text-right"><%= order.product_price_fitc %></td>
-          <td class="px-4 py-3"><%= order.status %></td>
-          <td class="px-4 py-3 text-right">
-            <% if order.status == "confirmed" %>
-              <%= button_to "Cancelar", admin_trade_order_path(order), method: :patch, params: { trade_order: { status: "cancelled" } }, form: { data: { turbo_confirm: "Estornar pedido?" } }, class: "text-red-600 text-xs" %>
+        <tr>
+          <td><%= order.id %></td>
+          <td><%= l(order.created_at, format: :short) %></td>
+          <td><%= order.employee.full_name %></td>
+          <td><%= order.product_name %></td>
+          <td class="is-numeric"><%= order.product_price_fitc %></td>
+          <td>
+            <%= form_with url: admin_trade_order_path(order), method: :patch, local: true, class: "admin-inline-form" do |f| %>
+              <%= f.select :status,
+                TradeOrder.statuses.keys.map { |s| [s.humanize, s] },
+                { selected: order.status },
+                { onchange: "this.form.submit()" } %>
             <% end %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
-</div>
+
+  <% if @orders.empty? %>
+    <p class="admin-empty-text">Nenhum pedido encontrado.</p>
+  <% end %>
+</section>

@@ -1,8 +1,39 @@
 <% content_for :title, "Categorias" %>
 
-<div class="flex justify-between mb-6"><h1 class="text-2xl font-bold">Categorias</h1><%= link_to "Nova", new_admin_catalog_category_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %></div>
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm"><thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Slug</th><th class="px-4 py-3 text-left">Label</th><th class="px-4 py-3 text-right">Ordem</th><th class="px-4 py-3 text-right">Ações</th></tr></thead>
-    <tbody><% @categories.each do |c| %><tr class="border-b"><td class="px-4 py-3"><%= c.slug %></td><td class="px-4 py-3"><%= c.label %></td><td class="px-4 py-3 text-right"><%= c.sort_order %></td><td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_catalog_category_path(c), class: "text-teal-700" %></td></tr><% end %></tbody>
+<%= render "admin/shared/page_header", title: "Categorias do catálogo" do %>
+  <%= link_to new_admin_catalog_category_path, class: "admin-button admin-button--primary" do %>
+    <%= lucide_icon "plus", class: "admin-button__icon" %>
+    <span>Nova categoria</span>
+  <% end %>
+<% end %>
+
+<section class="admin-table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Slug</th>
+        <th>Label</th>
+        <th class="is-numeric">Ordem</th>
+        <th>Status</th>
+        <th class="is-actions">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @categories.each do |category| %>
+        <tr>
+          <td><code><%= category.slug %></code></td>
+          <td><%= category.label %></td>
+          <td class="is-numeric"><%= category.sort_order %></td>
+          <td>
+            <span class="admin-status-badge <%= category.active? ? "is-success" : "is-muted" %>">
+              <%= category.active? ? "Ativa" : "Inativa" %>
+            </span>
+          </td>
+          <td class="is-actions">
+            <%= link_to "Editar", edit_admin_catalog_category_path(category), class: "admin-text-link" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
   </table>
-</div>
+</section>

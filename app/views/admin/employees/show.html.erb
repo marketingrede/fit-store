@@ -1,29 +1,83 @@
 <% content_for :title, @employee.full_name %>
 
-<h1 class="text-2xl font-bold mb-2"><%= @employee.full_name %></h1>
-<p class="text-slate-600 mb-6"><%= @employee.employee_id %> — <%= @employee.email %></p>
-<p class="text-xl font-bold text-teal-700 mb-8">Saldo: <%= @wallet.balance_fitc %> FITC</p>
+<%= render "admin/shared/page_header", title: @employee.full_name, description: "#{@employee.employee_id} — #{@employee.email}" do %>
+  <button
+    type="button"
+    class="admin-button admin-button--primary"
+    data-open-balance-modal
+    data-employee-id="<%= @employee.id %>"
+    data-employee-name="<%= @employee.full_name %>"
+  >
+    <%= lucide_icon "wallet", class: "admin-button__icon" %>
+    <span>Ajustar saldo</span>
+  </button>
+<% end %>
 
-<h2 class="font-semibold mb-4">Extrato</h2>
-<div class="bg-white rounded-xl border overflow-hidden mb-8">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Data</th><th class="px-4 py-3">Tipo</th><th class="px-4 py-3 text-right">Valor</th><th class="px-4 py-3">Descrição</th></tr></thead>
+<section class="admin-mini-stat-grid" aria-label="Resumo da conta">
+  <div class="admin-mini-stat">
+    <span>Saldo FITC</span>
+    <strong><%= @wallet.balance_fitc %></strong>
+  </div>
+  <div class="admin-mini-stat">
+    <span>Pedidos</span>
+    <strong><%= @orders.size %></strong>
+  </div>
+  <div class="admin-mini-stat">
+    <span>Lançamentos</span>
+    <strong><%= @ledger_entries.size %></strong>
+  </div>
+</section>
+
+<section class="admin-card admin-table-card">
+  <div class="admin-card__header">
+    <h2>Extrato FITC</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Tipo</th>
+        <th class="is-numeric">Valor</th>
+        <th>Descrição</th>
+      </tr>
+    </thead>
     <tbody>
-      <% @ledger_entries.each do |e| %>
-        <tr class="border-b"><td class="px-4 py-3"><%= l(e.created_at, format: :short) %></td><td class="px-4 py-3"><%= e.entry_type %></td><td class="px-4 py-3 text-right"><%= e.amount_fitc %></td><td class="px-4 py-3"><%= e.description %></td></tr>
+      <% @ledger_entries.each do |entry| %>
+        <tr>
+          <td><%= l(entry.created_at, format: :short) %></td>
+          <td><%= entry.entry_type %></td>
+          <td class="is-numeric"><%= entry.amount_fitc %></td>
+          <td><%= entry.description %></td>
+        </tr>
       <% end %>
     </tbody>
   </table>
-</div>
+</section>
 
-<h2 class="font-semibold mb-4">Pedidos</h2>
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b"><tr><th class="px-4 py-3 text-left">Data</th><th class="px-4 py-3">Produto</th><th class="px-4 py-3 text-right">FITC</th><th class="px-4 py-3">Status</th></tr></thead>
+<section class="admin-card admin-table-card">
+  <div class="admin-card__header">
+    <h2>Pedidos de resgate</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Produto</th>
+        <th class="is-numeric">FITC</th>
+        <th>Status</th>
+      </tr>
+    </thead>
     <tbody>
-      <% @orders.each do |o| %>
-        <tr class="border-b"><td class="px-4 py-3"><%= l(o.created_at, format: :short) %></td><td class="px-4 py-3"><%= o.product_name %></td><td class="px-4 py-3 text-right"><%= o.product_price_fitc %></td><td class="px-4 py-3"><%= o.status %></td></tr>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= l(order.created_at, format: :short) %></td>
+          <td><%= order.product_name %></td>
+          <td class="is-numeric"><%= order.product_price_fitc %></td>
+          <td><%= admin_trade_status_badge(order.status) %></td>
+        </tr>
       <% end %>
     </tbody>
   </table>
-</div>
+</section>
+
+<%= render "admin/fitc_wallets/balance_modal", employees: [@employee] %>

@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --brand-teal: #2dbda8;
+  --brand-blue: #256897;
+  --brand-grey: #616164;
+  --brand-surface: #eae9e9;
+  --brand-teal-dark: #1e9a88;
+  --brand-blue-dark: #1a5278;
+  --brand-grey-dark: #3d3d40;
+  --brand-grey-light: #8a8a8d;
+  --brand-surface-alt: #f5f4f4;
+  --brand-teal-soft: color-mix(in srgb, #2dbda8 14%, transparent);
+  --brand-blue-soft: color-mix(in srgb, #256897 10%, transparent);
+
+  --bg: #ffffff;
+  --bg-alt: var(--brand-surface-alt);
+  --card-bg: #ffffff;
+  --primary: var(--brand-teal);
+  --primary-alt: var(--brand-blue);
+  --primary-soft: var(--brand-blue-soft);
+  --text: var(--brand-grey-dark);
+  --text-muted: var(--brand-grey);
+  --border: color-mix(in srgb, var(--brand-grey) 18%, #ffffff);
+  --catalog-divider: color-mix(in srgb, var(--brand-grey) 14%, #ffffff);
+  --shadow-soft: 0 10px 28px rgba(37, 104, 151, 0.08);
+  --card-shadow-airy: 0 12px 34px rgba(37, 104, 151, 0.055);
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --font-sans: "Inter", "Aptos", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --admin-bg: var(--brand-surface-alt);
+  --admin-surface: #ffffff;
+  --admin-surface-muted: color-mix(in srgb, var(--brand-grey) 4%, #fff);
+  --admin-border: var(--border);
+  --admin-border-soft: var(--catalog-divider);
+  --admin-divider: var(--catalog-divider);
+  --admin-text: var(--brand-grey-dark);
+  --admin-muted: var(--brand-grey);
+  --admin-subtle: var(--brand-grey-light);
+  --admin-teal: var(--brand-teal);
+  --admin-teal-dark: var(--brand-teal-dark);
+  --admin-teal-soft: var(--brand-teal-soft);
+  --admin-blue: var(--brand-blue);
+  --admin-blue-soft: var(--brand-blue-soft);
+  --admin-danger: #c92f35;
+  --admin-danger-soft: #fff0f0;
+  --admin-shadow: var(--card-shadow-airy);
+  --admin-sidebar-w: 248px;
+  --admin-accent: var(--brand-teal);
+  --admin-radius: var(--radius-lg);
+}

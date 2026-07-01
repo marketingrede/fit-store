@@ -16,21 +16,21 @@ Rails.application.routes.draw do
     get "catalog/products", to: "catalog_products#index"
   end
 
-  post "api/colaborador/troca", to: "employee/trades#create"
+  post "api/colaborador/troca", to: "colaborador/trades#create"
 
   scope path: "colaborador", as: "colaborador" do
-    get "login", to: "employee/sessions#new"
-    post "login", to: "employee/sessions#create"
-    post "logout", to: "employee/sessions#destroy"
+    get "login", to: "colaborador/sessions#new"
+    post "login", to: "colaborador/sessions#create"
+    post "logout", to: "colaborador/sessions#destroy"
 
-    get "cadastro", to: "employee/registrations#new"
-    post "registro", to: "employee/registrations#create"
+    get "cadastro", to: "colaborador/registrations#new"
+    post "registro", to: "colaborador/registrations#create"
 
-    get "/", to: "employee/profile#show", as: :root
-    get "extrato", to: "employee/statements#index"
-    get "resgates", to: "employee/orders#index"
-    get "catalogo", to: "employee/catalog#index"
-    get "api/catalogo", to: "employee/catalog#api"
+    get "/", to: "colaborador/profile#show", as: :root
+    get "extrato", to: "colaborador/statements#index"
+    get "resgates", to: "colaborador/orders#index"
+    get "catalogo", to: "colaborador/catalog#index"
+    get "api/catalogo", to: "colaborador/catalog#api"
   end
 
   namespace :admin do
@@ -41,8 +41,17 @@ Rails.application.routes.draw do
     root "dashboard#index"
 
     get "colaboradores", to: "dashboard#employees", as: :employees_hub
+    get "relatorios", to: "dashboard#reports", as: :reports
+    get "configuracoes", to: "dashboard#catalog_settings", as: :catalog_settings
 
-    resources :products, path: "produtos", except: :show
+    resources :products, path: "produtos", except: :show do
+      collection do
+        post :bulk
+      end
+      member do
+        get :form_data
+      end
+    end
     resources :announcements, path: "anuncios", except: :show
 
     get "trocas", to: "trade_requests#index", as: :trade_requests

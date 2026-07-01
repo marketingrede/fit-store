@@ -1,7 +1,5 @@
 <script>
-  import { useForm } from "@inertiajs/svelte"
-
-  let { flash = {} } = $props()
+  import { useForm, page } from "@inertiajs/svelte"
 
   const form = useForm({
     employee_id: "",
@@ -12,7 +10,15 @@
 
   function submit(event) {
     event.preventDefault()
-    $form.post("/colaborador/cadastro")
+    $form.transform((data) => ({
+      employee_id: data.employee_id,
+      email: data.email,
+      password: data.password,
+      password_confirm: data.password_confirmation,
+    }))
+    $form.post("/colaborador/registro", {
+      preserveScroll: true,
+    })
   }
 </script>
 
@@ -20,41 +26,41 @@
   <title>Cadastro | Colaborador Movimenta+</title>
 </svelte:head>
 
-<div class="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-  <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-    <p class="text-xs font-semibold uppercase tracking-wide text-teal">Movimenta+</p>
-    <h1 class="mt-1 text-2xl font-bold text-slate-900">Cadastro de colaborador</h1>
-    <p class="mt-2 text-sm text-slate-600">Use a matrícula informada pela empresa.</p>
+<div class="auth-page">
+  <div class="auth-page__card">
+    <p class="employee-login-modal__eyebrow">Movimenta+</p>
+    <h1 class="auth-page__title">Cadastro de colaborador</h1>
+    <p class="auth-page__desc">Use a matrícula informada pela empresa.</p>
 
-    {#if flash.alert}
-      <p class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{flash.alert}</p>
+    {#if $page.props.flash?.alert}
+      <p class="employee-login-form__error" role="alert">{$page.props.flash.alert}</p>
     {/if}
 
-    <form class="mt-6 space-y-4" onsubmit={submit}>
-      <div>
-        <label for="employee_id" class="mb-1 block text-sm font-medium text-slate-700">Matrícula</label>
-        <input id="employee_id" type="text" bind:value={$form.employee_id} class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+    <form class="employee-login-form" onsubmit={submit}>
+      <div class="employee-login-form__field">
+        <label class="employee-login-form__label" for="register-employee_id">Matrícula</label>
+        <input id="register-employee_id" type="text" bind:value={$form.employee_id} class="employee-login-form__input" required />
       </div>
-      <div>
-        <label for="email" class="mb-1 block text-sm font-medium text-slate-700">E-mail</label>
-        <input id="email" type="email" bind:value={$form.email} class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+      <div class="employee-login-form__field">
+        <label class="employee-login-form__label" for="register-email">E-mail</label>
+        <input id="register-email" type="email" bind:value={$form.email} class="employee-login-form__input" required />
       </div>
-      <div>
-        <label for="password" class="mb-1 block text-sm font-medium text-slate-700">Senha</label>
-        <input id="password" type="password" bind:value={$form.password} class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+      <div class="employee-login-form__field">
+        <label class="employee-login-form__label" for="register-password">Senha</label>
+        <input id="register-password" type="password" bind:value={$form.password} class="employee-login-form__input" required />
       </div>
-      <div>
-        <label for="password_confirmation" class="mb-1 block text-sm font-medium text-slate-700">Confirmar senha</label>
-        <input id="password_confirmation" type="password" bind:value={$form.password_confirmation} class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+      <div class="employee-login-form__field">
+        <label class="employee-login-form__label" for="register-password_confirmation">Confirmar senha</label>
+        <input id="register-password_confirmation" type="password" bind:value={$form.password_confirmation} class="employee-login-form__input" required />
       </div>
-      <button type="submit" class="w-full rounded-lg bg-teal px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-dark" disabled={$form.processing}>
+      <button type="submit" class="redeem-button employee-login-form__submit" disabled={$form.processing}>
         {$form.processing ? "Cadastrando..." : "Cadastrar"}
       </button>
     </form>
 
-    <p class="mt-6 text-center text-sm text-slate-600">
+    <p class="employee-login-modal__footer">
       Já tem conta?
-      <a href="/colaborador/login" class="font-medium text-teal hover:underline">Entrar</a>
+      <a href="/colaborador/login">Entrar</a>
     </p>
   </div>
 </div>

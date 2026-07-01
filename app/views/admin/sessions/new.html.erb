@@ -1,17 +1,22 @@
-<% content_for :title, "Login — Admin" %>
+<% content_for :title, "Login - Admin" %>
 
-<div class="w-full max-w-md bg-white rounded-xl border border-slate-200 p-8 shadow-sm">
-  <h1 class="text-2xl font-bold mb-6">Admin Fit Store</h1>
+<section class="admin-login-card" aria-labelledby="admin-login-title">
+  <%= image_tag "/logo.svg", alt: "Movimenta+", class: "admin-login-card__logo" %>
+  <p class="admin-login-card__eyebrow">Painel administrativo</p>
+  <h1 id="admin-login-title">Fit Store</h1>
+  <p class="admin-login-card__text">Entre para gerenciar produtos, anúncios e trocas.</p>
 
-  <%= form_with url: admin_login_path, class: "space-y-4" do %>
+  <%= form_with url: admin_login_path, class: "admin-login-form" do %>
     <div>
-      <label for="email" class="block text-sm font-medium mb-1">E-mail</label>
-      <input type="email" name="email" id="email" required autocomplete="username" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+      <label for="email">E-mail</label>
+      <input type="email" name="email" id="email" required autocomplete="username" placeholder="seu@email.com">
     </div>
     <div>
-      <label for="password" class="block text-sm font-medium mb-1">Senha</label>
-      <input type="password" name="password" id="password" required autocomplete="current-password" class="w-full rounded-lg border border-slate-300 px-3 py-2">
+      <label for="password">Senha</label>
+      <input type="password" name="password" id="password" required autocomplete="current-password" placeholder="••••••••">
     </div>
-    <button type="submit" class="w-full rounded-lg bg-slate-900 text-white py-2 hover:bg-slate-800">Entrar</button>
+    <button type="submit" class="admin-button admin-button--primary admin-button--full">Entrar</button>
   <% end %>
-</div>
+
+  <%= link_to "Voltar para a loja", root_path, class: "admin-login-card__back" %>
+</section>

@@ -1,0 +1,13 @@
+<div class="admin-page-header">
+  <div>
+    <h1><%= title %></h1>
+    <% if local_assigns[:description].present? %>
+      <p><%= description %></p>
+    <% end %>
+  </div>
+  <% if block_given? %>
+    <div class="admin-page-header__actions">
+      <%= yield %>
+    </div>
+  <% end %>
+</div>

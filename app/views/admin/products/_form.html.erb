@@ -1,44 +1,93 @@
-<% content_for :title, (@product.persisted? ? "Editar produto" : "Novo produto") %>
+<% variations_payload = @product.product_attributes.map do |attribute|
+     {
+       id: attribute.id,
+       name: attribute.name,
+       unit: attribute.unit,
+       required: attribute.required,
+       allow_option_image: attribute.allow_option_image,
+       options: attribute.product_attribute_options.map do |option|
+         {
+           id: option.id,
+           label: option.label,
+           price_fitc_override: option.price_fitc_override,
+           image_url: option.image_url
+         }
+       end
+     }
+   end %>
 
-<h1 class="text-2xl font-bold mb-6"><%= @product.persisted? ? "Editar produto" : "Novo produto" %></h1>
+<%= form_with model: [:admin, @product],
+              class: "admin-form-card admin-form-card--wide",
+              data: {
+                product_form: true,
+                initial_variations: variations_payload.to_json
+              } do |f| %>
+  <%= admin_form_errors(@product) %>
 
-<%= form_with model: [:admin, @product], class: "max-w-xl space-y-4 bg-white rounded-xl border border-slate-200 p-6" do |f| %>
-  <% if @product.errors.any? %>
-    <div class="text-red-600 text-sm"><%= @product.errors.full_messages.to_sentence %></div>
-  <% end %>
+  <div class="admin-product-form-layout">
+    <div class="admin-form-grid">
+      <div>
+        <%= f.label :name, "Nome" %>
+        <%= f.text_field :name, id: "product_name", required: true %>
+      </div>
+      <div class="admin-form-grid admin-form-grid--2">
+        <div>
+          <%= f.label :category, "Categoria" %>
+          <%= f.select :category, @categories.map { |c| [c.label, c.slug] }, {}, id: "product_category", required: true %>
+        </div>
+        <div>
+          <%= f.label :price_fitc, "Preço FITC" %>
+          <%= f.number_field :price_fitc, min: 0, id: "product_price_fitc", required: true %>
+        </div>
+      </div>
+      <div>
+        <%= f.label :description, "Descrição" %>
+        <%= f.text_area :description, rows: 4, id: "product_description" %>
+      </div>
+      <div class="admin-form-grid admin-form-grid--2">
+        <div>
+          <%= f.label :image_url, "URL da imagem" %>
+          <%= f.url_field :image_url, id: "product_image_url" %>
+        </div>
+        <div>
+          <%= f.label :tag, "Tag" %>
+          <%= f.text_field :tag, id: "product_tag", list: "product-tag-options" %>
+          <datalist id="product-tag-options">
+            <% @tags.each do |tag| %>
+              <option value="<%= tag.name %>"></option>
+            <% end %>
+          </datalist>
+        </div>
+      </div>
+      <div>
+        <%= f.label :active, class: "admin-checkbox-field" do %>
+          <%= f.check_box :active, id: "product_active" %>
+          <span>Ativo</span>
+        <% end %>
+      </div>
 
-  <div>
-    <%= f.label :name, "Nome", class: "block text-sm font-medium mb-1" %>
-    <%= f.text_field :name, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
+      <div>
+        <div class="admin-variation-block__header">
+          <strong>Variações</strong>
+          <button type="button" class="admin-text-link" data-add-variation>+ variação</button>
+        </div>
+        <div class="admin-variations-editor" data-variations-editor></div>
+      </div>
+    </div>
+
+    <aside class="admin-media-preview" data-product-media-preview>
+      <% if @product.image_url.present? %>
+        <%= image_tag @product.image_url, alt: "" %>
+      <% else %>
+        <span class="admin-empty-text">Sem imagem</span>
+      <% end %>
+    </aside>
   </div>
-  <div>
-    <%= f.label :category, "Categoria", class: "block text-sm font-medium mb-1" %>
-    <%= f.select :category, @categories.map { |c| [c.label, c.slug] }, {}, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
-  <div>
-    <%= f.label :price_fitc, "Preço FITC", class: "block text-sm font-medium mb-1" %>
-    <%= f.number_field :price_fitc, min: 0, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
-  <div>
-    <%= f.label :description, "Descrição", class: "block text-sm font-medium mb-1" %>
-    <%= f.text_area :description, rows: 4, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
-  <div>
-    <%= f.label :image_url, "URL da imagem", class: "block text-sm font-medium mb-1" %>
-    <%= f.url_field :image_url, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
-  <div>
-    <%= f.label :tag, "Tag", class: "block text-sm font-medium mb-1" %>
-    <%= f.text_field :tag, class: "w-full rounded-lg border border-slate-300 px-3 py-2" %>
-  </div>
-  <div>
-    <%= f.label :active, class: "inline-flex items-center gap-2" do %>
-      <%= f.check_box :active %>
-      <span>Ativo</span>
-    <% end %>
-  </div>
-  <div class="flex gap-3">
-    <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2 hover:bg-slate-800" %>
-    <%= link_to "Cancelar", admin_products_path, class: "rounded-lg border border-slate-300 px-4 py-2" %>
+
+  <input type="hidden" name="variations_json" value="[]">
+
+  <div class="admin-form-actions">
+    <%= f.submit "Salvar", class: "admin-button admin-button--primary" %>
+    <%= link_to "Cancelar", admin_products_path, class: "admin-button admin-button--ghost" %>
   </div>
 <% end %>

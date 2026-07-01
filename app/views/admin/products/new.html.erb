@@ -1,1 +1,5 @@
+<% content_for :title, (@product.persisted? ? "Editar produto" : "Novo produto") %>
+
+<%= render "admin/shared/page_header", title: (@product.persisted? ? "Editar produto" : "Novo produto") %>
+
 <%= render "form" %>

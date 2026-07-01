@@ -1,46 +1,235 @@
 <% content_for :title, "Dashboard" %>
+<% content_for :admin_charts, true %>
 
-<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+<div
+  id="admin-dashboard-charts"
+  data-charts="<%= ERB::Util.html_escape(@chart_payload.to_json) %>"
+  hidden
+></div>
 
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  <% @stats.each do |label, value| %>
-    <div class="bg-white rounded-xl border border-slate-200 p-4">
-      <p class="text-xs uppercase tracking-wide text-slate-500"><%= label.to_s.humanize %></p>
-      <p class="text-2xl font-bold mt-1"><%= value %></p>
-    </div>
+<div class="admin-page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Visão geral da Fit Store com métricas dos últimos 30 dias.</p>
+  </div>
+  <div class="admin-page-header__actions">
+    <%= link_to admin_reports_path, class: "admin-button admin-button--ghost" do %>
+      <%= lucide_icon "bar-chart-3", class: "admin-button__icon" %>
+      <span>Relatórios</span>
+    <% end %>
+    <%= link_to root_path, class: "admin-button admin-button--ghost" do %>
+      <%= lucide_icon "storefront", class: "admin-button__icon" %>
+      <span>Ver loja</span>
+    <% end %>
+  </div>
+</div>
+
+<section class="admin-stat-grid" aria-label="Indicadores principais">
+  <%= link_to admin_products_path, class: "admin-stat-card" do %>
+    <span class="admin-stat-card__icon" aria-hidden="true">
+      <%= lucide_icon "package", class: "admin-stat-card__glyph" %>
+    </span>
+    <span>
+      <span class="admin-stat-card__label">Produtos ativos</span>
+      <strong><%= @stats[:products_active] %></strong>
+      <span class="admin-stat-card__hint"><%= @stats[:products_inactive] %> inativos · <%= @stats[:products_total] %> total</span>
+    </span>
   <% end %>
-</div>
 
-<div class="grid lg:grid-cols-2 gap-6">
-  <section class="bg-white rounded-xl border border-slate-200 p-6">
-    <h2 class="font-semibold mb-4">Trocas legado (recentes)</h2>
-    <% if @recent_trade_requests.any? %>
-      <ul class="space-y-2 text-sm">
-        <% @recent_trade_requests.each do |req| %>
-          <li class="flex justify-between border-b border-slate-100 pb-2">
-            <span><%= req.product_name %></span>
-            <span class="text-slate-500"><%= req.email %></span>
-          </li>
-        <% end %>
-      </ul>
+  <%= link_to admin_trade_requests_path, class: "admin-stat-card" do %>
+    <span class="admin-stat-card__icon admin-stat-card__icon--blue" aria-hidden="true">
+      <%= lucide_icon "arrow-left-right", class: "admin-stat-card__glyph admin-stat-card__glyph--blue" %>
+    </span>
+    <span>
+      <span class="admin-stat-card__label">Trocas (30 dias)</span>
+      <strong><%= @stats[:trade_orders_last_30] %></strong>
+      <span class="admin-stat-card__hint"><%= @stats[:trade_orders_last_7] %> nos últimos 7 dias · <%= @stats[:trade_orders_total] %> total</span>
+    </span>
+  <% end %>
+
+  <article class="admin-stat-card">
+    <span class="admin-stat-card__icon" aria-hidden="true">
+      <%= lucide_icon "coins", class: "admin-stat-card__glyph" %>
+    </span>
+    <span>
+      <span class="admin-stat-card__label">FITC resgatados</span>
+      <strong><%= number_with_delimiter(@stats[:fitc_redeemed_last_30]) %></strong>
+      <span class="admin-stat-card__hint">
+        Média <%= number_with_precision(@stats[:trade_orders_last_30].positive? ? @stats[:fitc_redeemed_last_30].to_f / @stats[:trade_orders_last_30] : 0, precision: 1) %> por troca
+      </span>
+    </span>
+  </article>
+
+  <%= link_to admin_announcements_path, class: "admin-stat-card" do %>
+    <span class="admin-stat-card__icon admin-stat-card__icon--blue" aria-hidden="true">
+      <%= lucide_icon "megaphone", class: "admin-stat-card__glyph admin-stat-card__glyph--blue" %>
+    </span>
+    <span>
+      <span class="admin-stat-card__label">Anúncios</span>
+      <strong><%= @stats[:announcements_total] %></strong>
+      <span class="admin-stat-card__hint"><%= @stats[:announcements_draft] %> rascunhos</span>
+    </span>
+  <% end %>
+</section>
+
+<section class="admin-card admin-chart-card">
+  <div class="admin-card__header">
+    <h2>Trocas por dia</h2>
+    <span>Últimos 30 dias</span>
+  </div>
+  <div class="admin-chart-panel">
+    <canvas id="admin-chart-trade-days" aria-label="Gráfico de trocas por dia"></canvas>
+  </div>
+</section>
+
+<div class="admin-dashboard-grid">
+  <section class="admin-card">
+    <div class="admin-card__header">
+      <h2>Top produtos</h2>
+      <span>Por solicitações</span>
+    </div>
+    <% if @top_products.any? %>
+      <div class="admin-chart-panel admin-chart-panel--bars">
+        <canvas id="admin-chart-top-products" aria-label="Top produtos por pedidos"></canvas>
+      </div>
     <% else %>
-      <p class="text-slate-500 text-sm">Nenhuma troca legado.</p>
+      <p class="admin-empty-text">Nenhum produto solicitado ainda.</p>
     <% end %>
   </section>
 
-  <section class="bg-white rounded-xl border border-slate-200 p-6">
-    <h2 class="font-semibold mb-4">Pedidos recentes</h2>
+  <section class="admin-card">
+    <div class="admin-card__header">
+      <h2>Por categoria</h2>
+      <span>Produtos no catálogo</span>
+    </div>
+    <% if @products_by_category.any? %>
+      <div class="admin-chart-panel admin-chart-panel--donut">
+        <canvas id="admin-chart-categories" aria-label="Produtos por categoria"></canvas>
+      </div>
+    <% else %>
+      <p class="admin-empty-text">Nenhuma categoria cadastrada.</p>
+    <% end %>
+  </section>
+
+  <section class="admin-card">
+    <div class="admin-card__header">
+      <h2>Status do catálogo</h2>
+      <span><%= @stats[:products_total] %> produtos</span>
+    </div>
+    <div class="admin-chart-panel admin-chart-panel--donut">
+      <canvas id="admin-chart-catalog-status" aria-label="Produtos ativos e inativos"></canvas>
+    </div>
+  </section>
+
+  <section class="admin-card admin-catalog-summary">
+    <div class="admin-card__header">
+      <h2>Catálogo</h2>
+    </div>
+    <dl>
+      <div>
+        <dt>Categorias ativas</dt>
+        <dd><%= @catalog_summary[:active_categories] %></dd>
+      </div>
+      <div>
+        <dt>Tags ativas</dt>
+        <dd><%= @catalog_summary[:active_tags] %></dd>
+      </div>
+      <div>
+        <dt>Produtos com imagem</dt>
+        <dd><%= @catalog_summary[:products_with_image] %></dd>
+      </div>
+    </dl>
+    <%= link_to admin_catalog_settings_path, class: "admin-button admin-button--full admin-button--ghost" do %>
+      <%= lucide_icon "settings", class: "admin-button__icon" %>
+      <span>Configurações</span>
+    <% end %>
+  </section>
+</div>
+
+<section class="admin-dashboard-secondary" aria-label="Atividade recente">
+  <section class="admin-card admin-table-card">
+    <div class="admin-card__header">
+      <h2>Últimos pedidos de resgate</h2>
+      <%= link_to "Ver todos", admin_trade_orders_path, class: "admin-text-link" %>
+    </div>
     <% if @recent_orders.any? %>
-      <ul class="space-y-2 text-sm">
-        <% @recent_orders.each do |order| %>
-          <li class="flex justify-between border-b border-slate-100 pb-2">
-            <span><%= order.product_name %></span>
-            <span class="text-slate-500"><%= order.employee.full_name %></span>
-          </li>
-        <% end %>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Colaborador</th>
+            <th>Produto</th>
+            <th class="is-numeric">FITC</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_orders.each do |order| %>
+            <tr>
+              <td><%= l(order.created_at, format: :short) %></td>
+              <td><%= order.employee.full_name %></td>
+              <td><%= order.product_name %></td>
+              <td class="is-numeric"><%= order.product_price_fitc %></td>
+              <td><%= admin_trade_status_badge(order.status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     <% else %>
-      <p class="text-slate-500 text-sm">Nenhum pedido.</p>
+      <p class="admin-empty-text">Nenhum pedido registrado ainda.</p>
     <% end %>
   </section>
-</div>
+
+  <section class="admin-card">
+    <div class="admin-card__header">
+      <h2>Resumo operacional</h2>
+    </div>
+    <div class="admin-mini-stat-grid">
+      <div class="admin-mini-stat">
+        <span>Pedidos totais</span>
+        <strong><%= @stats[:trade_orders_total] %></strong>
+      </div>
+      <div class="admin-mini-stat">
+        <span>Confirmados</span>
+        <strong><%= @stats[:trade_orders_confirmed] %></strong>
+      </div>
+      <div class="admin-mini-stat">
+        <span>Colaboradores</span>
+        <strong><%= @stats[:employees_total] %></strong>
+      </div>
+      <div class="admin-mini-stat">
+        <span>FITC em carteiras</span>
+        <strong><%= number_with_delimiter(@stats[:fitc_wallet_total]) %></strong>
+      </div>
+    </div>
+
+    <div class="admin-card__header">
+      <h2>Solicitações legadas</h2>
+      <span><%= @recent_trade_requests.size %> recentes</span>
+    </div>
+    <% if @recent_trade_requests.any? %>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Colaborador</th>
+            <th>Produto</th>
+            <th class="is-numeric">FITC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_trade_requests.each do |request| %>
+            <tr>
+              <td><%= l(request.created_at, format: :short) %></td>
+              <td><%= request.name %></td>
+              <td><%= request.product_name %></td>
+              <td class="is-numeric"><%= request.product_price_fitc %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="admin-empty-text">Nenhuma solicitação legada.</p>
+    <% end %>
+  </section>
+</section>

@@ -4,6 +4,7 @@ require "rails_helper"
 
 RSpec.describe FitcWallets::AdjustBalance do
   let(:employee) { create(:employee, wallet_balance: 100) }
+  let(:admin_user) { create(:user) }
 
   describe ".call" do
     it "credits wallet and creates ledger entry" do
@@ -12,7 +13,7 @@ RSpec.describe FitcWallets::AdjustBalance do
         adjustment_type: "credit",
         amount: 25,
         description: "Bônus mensal",
-        admin_user_id: 7
+        admin_user_id: admin_user.id
       )
 
       expect(result.ok).to be(true)
@@ -23,7 +24,7 @@ RSpec.describe FitcWallets::AdjustBalance do
         balance_after_fitc: 125,
         reference_type: "manual_adjustment",
         description: "Bônus mensal",
-        created_by_user_id: 7
+        created_by_user_id: admin_user.id
       )
       expect(employee.fitc_wallet.reload.balance_fitc).to eq(125)
     end

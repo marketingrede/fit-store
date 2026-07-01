@@ -1,1 +1,5 @@
+<% content_for :title, (@preset.persisted? ? "Editar preset" : "Novo preset") %>
+
+<%= render "admin/shared/page_header", title: (@preset.persisted? ? "Editar preset" : "Novo preset") %>
+
 <%= render "form" %>

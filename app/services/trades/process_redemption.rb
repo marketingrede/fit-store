@@ -12,17 +12,21 @@ module Trades
       end
     end
 
-    def self.call(employee:, product:, selection:)
-      new(employee:, product:, selection:).call
+    def self.call(employee:, product:, selection:, idempotency_key: nil)
+      new(employee:, product:, selection:, idempotency_key:).call
     end
 
-    def initialize(employee:, product:, selection:)
+    def initialize(employee:, product:, selection:, idempotency_key: nil)
       @employee = employee
       @product = product
       @selection = selection
+      @idempotency_key = idempotency_key.to_s.strip.presence
     end
 
     def call
+      existing_order = find_idempotent_order
+      return idempotent_success(existing_order) if existing_order
+
       return Result.failure("Produto não encontrado ou inativo.") unless product&.active?
 
       validation = Products::SelectionValidator.call(product:, selection:)
@@ -61,7 +65,8 @@ module Trades
           product_price_fitc: final_price,
           product_selection_json: selection_payload(validation.summary),
           status: "confirmed",
-          ledger_debit: ledger
+          ledger_debit: ledger,
+          idempotency_key:
         )
 
         ledger.update!(reference_id: order.id)
@@ -70,13 +75,28 @@ module Trades
       return Result.failure(insufficient_balance_message(insufficient_balance)) if order.nil?
 
       Result.success(order:, new_balance:)
+    rescue ActiveRecord::RecordNotUnique
+      existing_order = find_idempotent_order
+      existing_order ? idempotent_success(existing_order) : Result.failure("Erro ao processar resgate.")
     rescue StandardError
       Result.failure("Erro ao processar resgate.")
     end
 
     private
 
-    attr_reader :employee, :product, :selection
+    attr_reader :employee, :product, :selection, :idempotency_key
+
+    def find_idempotent_order
+      return if idempotency_key.blank?
+
+      employee.trade_orders.find_by(idempotency_key:)
+    end
+
+    def idempotent_success(order)
+      new_balance = order.ledger_debit&.balance_after_fitc || employee.fitc_wallet&.balance_fitc.to_i
+
+      Result.success(order:, new_balance:)
+    end
 
     def selection_payload(summary)
       {

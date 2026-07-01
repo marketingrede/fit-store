@@ -1,18 +1,34 @@
 <% content_for :title, "Anúncios" %>
 
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Anúncios</h1>
-  <%= link_to "Novo anúncio", new_admin_announcement_path, class: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm" %>
-</div>
+<%= render "admin/shared/page_header", title: "Anúncios" do %>
+  <%= link_to new_admin_announcement_path, class: "admin-button admin-button--primary" do %>
+    <%= lucide_icon "plus", class: "admin-button__icon" %>
+    <span>Novo anúncio</span>
+  <% end %>
+<% end %>
 
-<div class="bg-white rounded-xl border overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-slate-50 border-b"><tr><th class="text-left px-4 py-3">Título</th><th class="text-left px-4 py-3">Status</th><th class="text-right px-4 py-3">Ações</th></tr></thead>
+<section class="admin-table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Status</th>
+        <th>Publicado em</th>
+        <th class="is-actions">Ações</th>
+      </tr>
+    </thead>
     <tbody>
-      <% @announcements.each do |a| %>
-        <tr class="border-b"><td class="px-4 py-3"><%= a.title %></td><td class="px-4 py-3"><%= a.status %></td>
-          <td class="px-4 py-3 text-right"><%= link_to "Editar", edit_admin_announcement_path(a), class: "text-teal-700" %></td></tr>
+      <% @announcements.each do |announcement| %>
+        <tr>
+          <td><%= announcement.title %></td>
+          <td><%= admin_announcement_status_badge(announcement.status) %></td>
+          <td><%= announcement.published_at ? l(announcement.published_at, format: :short) : "—" %></td>
+          <td class="is-actions">
+            <%= link_to "Editar", edit_admin_announcement_path(announcement), class: "admin-text-link" %>
+            <%= button_to "Excluir", admin_announcement_path(announcement), method: :delete, form: { data: { turbo_confirm: "Excluir anúncio?" } }, class: "admin-danger-link" %>
+          </td>
+        </tr>
       <% end %>
     </tbody>
   </table>
-</div>
+</section>

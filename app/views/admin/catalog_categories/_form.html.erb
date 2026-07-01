@@ -1,8 +1,29 @@
-<h1 class="text-2xl font-bold mb-6"><%= @category.persisted? ? "Editar categoria" : "Nova categoria" %></h1>
-<%= form_with model: [:admin, @category], class: "max-w-xl space-y-4 bg-white rounded-xl border p-6" do |f| %>
-  <div><%= f.label :slug %><%= f.text_field :slug, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
-  <div><%= f.label :label %><%= f.text_field :label, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
-  <div><%= f.label :sort_order, "Ordem" %><%= f.number_field :sort_order, class: "w-full border rounded-lg px-3 py-2 mt-1" %></div>
-  <div><%= f.label :active, class: "inline-flex gap-2 items-center" do %><%= f.check_box :active %> Ativo<% end %></div>
-  <%= f.submit "Salvar", class: "rounded-lg bg-slate-900 text-white px-4 py-2" %>
+<%= form_with model: [:admin, @category], class: "admin-form-card" do |f| %>
+  <%= admin_form_errors(@category) %>
+
+  <div class="admin-form-grid">
+    <div>
+      <%= f.label :slug, "Slug" %>
+      <%= f.text_field :slug %>
+    </div>
+    <div>
+      <%= f.label :label, "Label" %>
+      <%= f.text_field :label %>
+    </div>
+    <div>
+      <%= f.label :sort_order, "Ordem" %>
+      <%= f.number_field :sort_order, min: 0 %>
+    </div>
+    <div>
+      <%= f.label :active, class: "admin-checkbox-field" do %>
+        <%= f.check_box :active %>
+        <span>Ativa</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="admin-form-actions">
+    <%= f.submit "Salvar", class: "admin-button admin-button--primary" %>
+    <%= link_to "Cancelar", admin_catalog_categories_path, class: "admin-button admin-button--ghost" %>
+  </div>
 <% end %>

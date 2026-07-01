@@ -1,1 +1,5 @@
+<% content_for :title, (@tag.persisted? ? "Editar tag" : "Nova tag") %>
+
+<%= render "admin/shared/page_header", title: (@tag.persisted? ? "Editar tag" : "Nova tag") %>
+
 <%= render "form" %>

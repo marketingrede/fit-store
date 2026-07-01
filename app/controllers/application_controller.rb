@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  allow_browser versions: :modern
-  stale_when_importmap_changes
+  inertia_share do
+    {
+      auth: {
+        admin: current_user&.slice(:id, :email, :role),
+        employee: serialize_employee_auth
+      },
+      flash: flash.to_hash
+    }
+  end
 
   helper_method :current_user, :current_employee, :inertia_share
 
@@ -18,9 +25,17 @@ class ApplicationController < ActionController::Base
     {
       auth: {
         admin: current_user&.slice(:id, :email, :role),
-        employee: current_employee&.slice(:id, :employee_id, :full_name, :email)
+        employee: serialize_employee_auth
       },
       flash: flash.to_hash
     }
+  end
+
+  def serialize_employee_auth
+    return unless current_employee
+
+    current_employee.slice(:id, :employee_id, :full_name, :email).merge(
+      balance_fitc: current_employee.fitc_wallet&.balance_fitc.to_i
+    )
   end
 end

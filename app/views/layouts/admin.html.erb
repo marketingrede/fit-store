@@ -1,50 +1,107 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <title><%= content_for(:title) || "Admin — Fit Store" %></title>
+    <title><%= content_for(:title) || "Admin - Fit Store" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag "application", "admin-extensions", "data-turbo-track": "reload" %>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag "admin", "data-turbo-track": "reload", defer: true %>
+    <% if content_for?(:admin_charts) %>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" defer></script>
+    <% end %>
+    <% if content_for?(:admin_quill) || content_for?(:admin_cropper) %>
+      <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js" defer></script>
+    <% end %>
   </head>
-  <body class="bg-slate-100 text-slate-900 min-h-screen">
+  <body class="admin-body">
     <% if current_user %>
-      <div class="flex min-h-screen">
-        <aside class="w-64 bg-slate-900 text-white shrink-0">
-          <div class="p-4 border-b border-slate-700">
-            <p class="font-bold text-lg">Fit Store Admin</p>
-            <p class="text-xs text-slate-400 truncate"><%= current_user.email %></p>
+      <div class="admin-shell" data-admin-shell>
+        <button type="button" class="admin-shell__backdrop" data-admin-nav-toggle aria-label="Fechar menu"></button>
+
+        <aside class="admin-sidebar" aria-label="Menu administrativo">
+          <div class="admin-sidebar__brand">
+            <%= link_to admin_root_path, class: "admin-brand-link", aria: { label: "Ir para o dashboard" } do %>
+              <%= image_tag "/logo.svg", alt: "Movimenta+", class: "admin-brand-link__logo" %>
+              <span class="admin-brand-link__text">
+                <strong>Fit Store</strong>
+                <span>Painel admin</span>
+              </span>
+            <% end %>
           </div>
-          <nav class="p-4 space-y-1 text-sm">
-            <%= link_to "Dashboard", admin_root_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Produtos", admin_products_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Anúncios", admin_announcements_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Trocas (legado)", admin_trade_requests_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Pedidos", admin_trade_orders_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Elegíveis", admin_employee_eligibilities_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Contas", admin_employees_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Saldos FITC", admin_fitc_wallets_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Categorias", admin_catalog_categories_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Tags", admin_catalog_tags_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Variações", admin_variation_presets_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "CTAs", admin_catalog_cta_cards_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
-            <%= link_to "Conta", admin_account_path, class: "block px-3 py-2 rounded hover:bg-slate-800" %>
+
+          <nav class="admin-nav">
+            <%= admin_nav_link_to "Dashboard", admin_root_path, icon: "layout-grid", exact: true %>
+            <%= admin_nav_link_to "Produtos", admin_products_path, icon: "package" %>
+            <%= admin_nav_link_to "Anúncios", admin_announcements_path, icon: "megaphone" %>
+            <%= admin_nav_link_to "Trocas", admin_trade_requests_path, icon: "arrow-left-right" %>
+
+            <span class="admin-nav__section">Colaboradores</span>
+            <%= admin_nav_link_to "Hub", admin_employees_hub_path, icon: "users", exact: true, sub: true %>
+            <%= admin_nav_link_to "Elegíveis", admin_employee_eligibilities_path, icon: "contact", sub: true %>
+            <%= admin_nav_link_to "Contas", admin_employees_path, icon: "circle-user", sub: true %>
+            <%= admin_nav_link_to "Saldos", admin_fitc_wallets_path, icon: "wallet", sub: true %>
+            <%= admin_nav_link_to "Pedidos", admin_trade_orders_path, icon: "receipt", sub: true %>
+
+            <span class="admin-nav__section">Catálogo</span>
+            <%= admin_nav_link_to "Configurações", admin_catalog_settings_path, icon: "settings", exact: true, sub: true %>
+            <%= admin_nav_link_to "Categorias", admin_catalog_categories_path, icon: "folder-open", sub: true %>
+            <%= admin_nav_link_to "Tags", admin_catalog_tags_path, icon: "tag", sub: true %>
+            <%= admin_nav_link_to "Variações", admin_variation_presets_path, icon: "sliders-horizontal", sub: true %>
+            <%= admin_nav_link_to "Cards CTA", admin_catalog_cta_cards_path, icon: "credit-card", sub: true %>
+
+            <span class="admin-nav__section">Sistema</span>
+            <%= admin_nav_link_to "Relatórios", admin_reports_path, icon: "bar-chart-3", sub: true %>
+            <%= admin_nav_link_to "Minha conta", admin_account_path, icon: "settings", sub: true %>
+            <%= link_to root_path, class: "admin-nav-link admin-nav-link--sub admin-nav-link--store" do %>
+              <%= lucide_icon "storefront", class: "admin-nav-link__icon" %>
+              <span class="admin-nav-link__label">Ver loja</span>
+            <% end %>
           </nav>
-          <div class="p-4 border-t border-slate-700">
-            <%= button_to "Sair", admin_logout_path, method: :post, class: "text-sm text-slate-400 hover:text-white" %>
+
+          <div class="admin-sidebar__footer">
+            <%= button_to admin_logout_path, method: :post, class: "admin-logout-button" do %>
+              <%= lucide_icon "log-out", class: "admin-logout-button__icon" %>
+              <span>Sair</span>
+            <% end %>
           </div>
         </aside>
-        <div class="flex-1">
-          <main class="p-8">
-            <%= render "shared/flash" %>
+
+        <div class="admin-workspace">
+          <header class="admin-mobile-topbar">
+            <button type="button" class="admin-mobile-topbar__toggle" data-admin-nav-toggle aria-label="Abrir menu">
+              <%= lucide_icon "menu" %>
+            </button>
+            <strong>Fit Store Admin</strong>
+            <%= link_to root_path, class: "admin-button admin-button--ghost", aria: { label: "Ver loja" } do %>
+              <%= lucide_icon "storefront", class: "admin-button__icon" %>
+            <% end %>
+          </header>
+
+          <header class="admin-topbar">
+            <div>
+              <p class="admin-topbar__eyebrow">Movimenta+</p>
+              <p class="admin-topbar__title">Painel da Fit Store</p>
+            </div>
+            <%= link_to root_path, class: "admin-button admin-button--ghost" do %>
+              <%= lucide_icon "storefront", class: "admin-button__icon" %>
+              <span>Ver loja</span>
+            <% end %>
+          </header>
+
+          <main class="admin-main" id="conteudo">
+            <%= render "shared/admin_flash" %>
             <%= yield %>
           </main>
         </div>
       </div>
     <% else %>
-      <main class="min-h-screen flex items-center justify-center p-4">
-        <%= render "shared/flash" %>
+      <main class="admin-login-shell">
+        <%= render "shared/admin_flash" %>
         <%= yield %>
       </main>
     <% end %>

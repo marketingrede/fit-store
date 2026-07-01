@@ -13,7 +13,8 @@ module EmployeeAuthenticatable
   def require_employee!
     return if current_employee
 
-    redirect_to colaborador_login_path, alert: "Faça login para continuar."
+    target = colaborador_login_path(return_to: request.fullpath)
+    redirect_to target, alert: "Faça login para continuar."
   end
 
   def redirect_if_employee_signed_in!

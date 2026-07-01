@@ -5,13 +5,14 @@ require "rails_helper"
 RSpec.describe Trades::ReverseOrder do
   let(:employee) { create(:employee, wallet_balance: 50) }
   let(:product) { create(:product, price_fitc: 50) }
+  let(:admin_user) { create(:user) }
   let(:trade_order) do
     create(:trade_order, :with_debit, employee:, product:, product_price_fitc: 50, status: "confirmed")
   end
 
   describe ".call" do
     it "creates reversal ledger entry and credits wallet on cancel" do
-      result = described_class.call(trade_order:, status: "cancelled", admin_user_id: 99)
+      result = described_class.call(trade_order:, status: "cancelled", admin_user_id: admin_user.id)
 
       expect(result.ok).to be(true)
       expect(result.new_balance).to eq(100)
@@ -22,7 +23,7 @@ RSpec.describe Trades::ReverseOrder do
         balance_after_fitc: 100,
         reference_type: "reversal",
         reference_id: trade_order.ledger_debit_id,
-        created_by_user_id: 99
+        created_by_user_id: admin_user.id
       )
       expect(employee.fitc_wallet.reload.balance_fitc).to eq(100)
     end

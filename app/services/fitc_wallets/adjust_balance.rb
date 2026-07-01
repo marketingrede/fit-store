@@ -49,9 +49,9 @@ module FitcWallets
 
         new_balance = if adjustment_type == "credit"
                         wallet.balance_fitc + amount
-                      else
+        else
                         wallet.balance_fitc - amount
-                      end
+        end
 
         wallet.update!(balance_fitc: new_balance)
 
